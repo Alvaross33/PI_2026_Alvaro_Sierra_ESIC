@@ -1,6 +1,4 @@
-/* 
-   Constantes globales y selectores rápidos para manipulación del DOM 
-*/
+
 const API = '/api';
 
 const q = (s) => document.querySelector(s);
@@ -91,8 +89,8 @@ async function atenderIncidencia(incidenciaId, silencioso = false) {
     if (putRes.ok) {
       const updatedInc = await putRes.json();
       
-      /* 
-         Actualizamos el DOM directamente si la incidencia está visible 
+      /*
+         Actualizamos el DOM directamente si la incidencia está visible
       */
       if (state.incidenciaActiva && state.incidenciaActiva.incidenciaId === updatedInc.incidenciaId) {
         state.incidenciaActiva = updatedInc;
