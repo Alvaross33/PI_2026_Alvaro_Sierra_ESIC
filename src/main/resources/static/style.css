@@ -1,0 +1,299 @@
+:root { /* Definición de variables globales (CSS Variables) para mantener la consistencia visual */
+  --primary: #2563eb; /* Color azul principal para botones y resaltados */
+  --primary-hover: #1d4ed8; /* Color azul más oscuro para el efecto hover (pasar el ratón) */
+  --bg: #f8fafc; /* Color de fondo general de la página (gris muy claro) */
+  --card-bg: #ffffff; /* Color de fondo de los contenedores/tarjetas (blanco) */
+  --text-main: #1e293b; /* Color de texto principal (gris oscuro tirando a negro) */
+  --text-muted: #64748b; /* Color de texto secundario/atenuado (gris) */
+  --border: #e2e8f0; /* Color estándar para bordes de inputs y divisores */
+  --success-bg: #dcfce7; /* Fondo verde para mensajes de éxito */
+  --success-text: #166534; /* Texto verde oscuro para éxito */
+  --warning-bg: #fef3c7; /* Fondo amarillento para avisos */
+  --warning-text: #92400e; /* Texto marrón para avisos */
+  --error-bg: #fee2e2; /* Fondo rojizo para errores */
+  --error-text: #991b1b; /* Texto rojo oscuro para errores */
+  --radius: 12px; /* Radio de redondeo estándar para esquinas */
+  --alert-bg: #fff7ed;
+  --alert-text: #b45309;
+  --alert-border: #fed7aa;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* Sombra suave para elevación visual */
+}
+
+* { box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; } /* Aplica box-sizing y tipografía a todos los elementos */
+
+body { /* Estilos para el cuerpo de la página */
+  margin: 0; /* Elimina márgenes por defecto del navegador */
+  background-color: var(--bg); /* Usa la variable de fondo */
+  color: var(--text-main); /* Usa la variable de texto principal */
+  line-height: 1.5; /* Espaciado entre líneas para mejor lectura */
+}
+
+.container { /* Contenedor centrado que limita el ancho de la aplicación */
+  max-width: 900px; /* Ancho máximo de 900 píxeles */
+  margin: 40px auto; /* Separación superior/inferior y centrado horizontal */
+  background: var(--card-bg); /* Fondo blanco */
+  padding: 32px; /* Espaciado interno de 32 píxeles */
+  border-radius: var(--radius); /* Esquinas redondeadas */
+  box-shadow: var(--shadow); /* Sombra para dar profundidad */
+}
+
+h1, h2, h3, h4 { /* Estilos comunes para encabezados */
+  color: var(--text-main); /* Color principal */
+  font-weight: 700; /* Texto en negrita */
+  margin-top: 0; /* Elimina margen superior extra */
+}
+
+h1 { font-size: 2rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem; margin-bottom: 2rem; } /* Estilo específico para el título H1 */
+
+label { /* Estilo para las etiquetas de los formularios */
+  display: block; /* Ocupa toda la línea */
+  margin: 16px 0 6px; /* Márgenes para separar de otros campos */
+  font-weight: 600; /* Texto semi-negrita */
+  font-size: 0.9rem; /* Tamaño de fuente ligeramente reducido */
+}
+
+input, select, textarea { /* Estilos para campos de entrada de datos */
+  width: 100%; /* Ocupan el 100% del ancho del contenedor */
+  padding: 12px 16px; /* Espaciado interno cómodo */
+  border: 1px solid var(--border); /* Borde fino gris */
+  border-radius: 8px; /* Redondeo de esquinas */
+  background: #fdfdfd; /* Fondo casi blanco */
+  transition: border-color 0.2s, box-shadow 0.2s; /* Transición suave para el foco */
+}
+
+input:focus, select:focus, textarea:focus { /* Efecto visual cuando el usuario hace clic en el campo */
+  outline: none; /* Elimina el borde azul por defecto de los navegadores */
+  border-color: var(--primary); /* Cambia el borde al azul corporativo */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); /* Añade un anillo de luz azul suave */
+}
+
+button { /* Estilos generales para todos los botones */
+  margin-top: 14px; /* Separación superior */
+  padding: 12px 20px; /* Tamaño del botón */
+  border: 0; /* Sin borde */
+  border-radius: 8px; /* Esquinas redondeadas */
+  background: var(--primary); /* Fondo azul */
+  color: #fff; /* Texto blanco */
+  cursor: pointer; /* Cambia el puntero al pasar por encima */
+  font-weight: 600; /* Texto en negrita */
+  transition: transform 0.1s, background 0.2s; /* Transición para clic y hover */
+}
+
+button:hover { background: var(--primary-hover); } /* Cambio de color al pasar el ratón */
+button:active { transform: scale(0.98); } /* Pequeño efecto de pulsado al hacer clic */
+
+button + button, .btn-secondary { /* Estilos para botones secundarios (grisáceos) */
+  margin-left: 8px; /* Separación lateral de otros botones */
+  background: #f1f5f9; /* Fondo gris claro */
+  color: #475569; /* Texto gris oscuro */
+}
+
+button + button:hover, .btn-secondary:hover { background: #e2e8f0; color: #1e293b; } /* Efecto hover para secundarios */
+
+.hidden { display: none; } /* Clase de utilidad para ocultar elementos del DOM */
+
+/* Tabs (Pestañas del panel de administrador) */
+.tabs {
+  display: flex; /* Disposición horizontal */
+  gap: 8px; /* Espacio entre pestañas */
+  margin-bottom: 24px; /* Separación inferior */
+  background: #f1f5f9; /* Fondo de la barra de pestañas */
+  padding: 4px; /* Espaciado interno */
+  border-radius: 10px; /* Redondeo del contenedor */
+}
+
+.tab-btn {
+  flex: 1; /* Todas las pestañas ocupan el mismo espacio */
+  background: none; /* Sin fondo por defecto */
+  border: none; /* Sin borde */
+  padding: 10px; /* Espaciado interno */
+  margin-top: 0; /* Reset de margen */
+  cursor: pointer; /* Puntero de clic */
+  color: var(--text-muted); /* Texto gris */
+  font-weight: 600; /* Negrita */
+  border-radius: 7px; /* Redondeo del botón de pestaña */
+  transition: all 0.2s; /* Transición suave */
+}
+
+.tab-btn.active { /* Estilo para la pestaña que está seleccionada actualmente */
+  background-color: white; /* Fondo blanco */
+  color: var(--primary); /* Texto azul */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Sombra mínima */
+}
+
+/* Incidencias List (Diseño de las tarjetas de incidencias) */
+.inc-list {
+  list-style: none; /* Elimina los puntos de la lista */
+  padding: 0; /* Elimina el padding por defecto */
+}
+
+.inc-list li {
+  background-color: white; /* Fondo de la tarjeta */
+  padding: 20px; /* Espaciado interno generoso */
+  border: 1px solid var(--border); /* Borde sutil */
+  border-radius: var(--radius); /* Esquinas redondeadas */
+  margin-bottom: 16px; /* Separación entre tarjetas */
+  transition: border-color 0.2s, box-shadow 0.2s; /* Efectos de transición */
+}
+
+.inc-list li:hover { /* Efecto al pasar el ratón por una incidencia */
+  border-color: var(--primary); /* Borde azul */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Sombra más pronunciada */
+}
+
+.inc-header { /* Cabecera interna de la tarjeta de incidencia */
+  display: flex; /* Alineación horizontal */
+  justify-content: space-between; /* Título a la izquierda, fecha a la derecha */
+  align-items: flex-start; /* Alineado arriba */
+  margin-bottom: 12px; /* Separación inferior */
+}
+
+.badge { /* Estilo base para etiquetas (Prioridad) */
+  padding: 4px 10px; /* Espaciado interno de la etiqueta */
+  border-radius: 99px; /* Forma de píldora (totalmente redondeada) */
+  font-size: 0.75rem; /* Texto pequeño */
+  font-weight: 700; /* Texto muy negrita */
+  text-transform: uppercase; /* Convertir a mayúsculas */
+}
+
+.badge-baja { background: #f1f5f9; color: #475569; } /* Colores para prioridad baja */
+.badge-media { background: #fef3c7; color: #92400e; } /* Colores para prioridad media */
+.badge-alta { background: #fee2e2; color: #991b1b; } /* Colores para prioridad alta */
+
+.estado-tag { /* Etiqueta para mostrar el estado actual */
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* Auth (Vistas de autenticación y registro) */
+#auth-view, #register-view {
+  max-width: 400px; /* Ancho más estrecho para formularios de acceso */
+  margin: 0 auto; /* Centrado horizontal */
+}
+
+.msg { /* Estilo para mensajes informativos o de error en formularios */
+  margin-top: 16px; 
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.msg:not(:empty) { /* Estilo que se aplica solo si el mensaje tiene texto */
+  background: var(--alert-bg);
+  color: var(--alert-text);
+  border: 1px solid var(--alert-border);
+}
+
+/* Alerta flotante personalizada */
+#custom-alert-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  background: var(--alert-bg);
+  color: var(--alert-text);
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: 1px solid var(--alert-border);
+  box-shadow: 0 4px 12px rgba(180, 83, 9, 0.15);
+  font-weight: 600;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { top: -50px; opacity: 0; }
+  to { top: 20px; opacity: 1; }
+}
+
+/* Nota Card (Diseño de las notas/comentarios en el historial) */
+.nota-card {
+  width: 100%;
+  background: #f8fafc; /* Fondo grisáceo suave */
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column; /* Disposición vertical */
+}
+
+.nota-header {
+  display: flex;
+  justify-content: space-between; /* Autor a la izquierda, fecha a la derecha */
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.nota-autor {
+  font-weight: bold;
+  color: var(--text-main);
+}
+
+.nota-fecha {
+  color: var(--text-muted);
+}
+
+.nota-contenido {
+  white-space: pre-wrap; /* Mantiene los saltos de línea introducidos en el textarea */
+  color: var(--text-main);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+#chat-messages::-webkit-scrollbar { /* Estilo personalizado de la barra de desplazamiento (Scrollbar) */
+  width: 6px; /* Ancho de la barra */
+}
+
+#chat-messages::-webkit-scrollbar-thumb { /* Parte móvil de la barra de desplazamiento */
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+#chat-form input { /* Sobreescritura específica para el input de notas */
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  outline: none;
+}
+
+#chat-form input:focus {
+  border-color: var(--primary);
+}
+
+/* Tablas (Vistas de Administrador) */
+table {
+  width: 100%;
+  border-spacing: 0;
+  margin-top: 10px;
+}
+
+th {
+  text-align: left;
+  padding: 12px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--border);
+}
+
+td {
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+hr { border: 0; border-top: 1px solid var(--border); margin: 32px 0; } /* Estilo para la línea horizontal separadora */
+
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.logo {
+  max-width: 150px;
+  height: auto;
+}

@@ -1,0 +1,229 @@
+<!doctype html> <!-- Declaración del tipo de documento HTML5 -->
+<html lang="es"> <!-- Inicio del documento con idioma español -->
+<head> <!-- Cabecera con metadatos y enlaces -->
+  <meta charset="UTF-8" /> <!-- Codificación de caracteres universal -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- Optimización para móviles -->
+  <title>TFG - Gestión de Incidencias</title> <!-- Título de la pestaña del navegador -->
+  <link rel="stylesheet" href="/style.css"> <!-- Enlace al archivo de estilos CSS -->
+</head> <!-- Fin de la cabecera -->
+<body> <!-- Inicio del contenido visible de la página -->
+  <div class="container"> <!-- Contenedor principal centrado -->
+    <div id="custom-alert-container" class="hidden"></div>
+    <div class="logo-container">
+      <img src="/Images/Logo TFG.png" alt="Logo TFG" class="logo">
+    </div>
+    <h1>Gestión de Incidencias</h1> <!-- Título principal de la aplicación -->
+
+    <div id="auth-view"> <!-- Sección para el acceso de usuarios (login) -->
+      <h2>Acceso</h2> <!-- Subtítulo de la sección de acceso -->
+      <form id="login-form" novalidate> <!-- Formulario de inicio de sesión -->
+        <label>Email</label> <!-- Etiqueta para el campo de correo -->
+        <input type="email" id="login-email" required /> <!-- Campo de entrada para el correo -->
+
+        <label>Contraseña</label> <!-- Etiqueta para el campo de contraseña -->
+        <input type="password" id="login-pass" required /> <!-- Campo de entrada para la contraseña -->
+
+        <button type="submit">Entrar</button> <!-- Botón para enviar el formulario -->
+        <button type="button" id="btn-to-register">Crear cuenta</button> <!-- Botón para cambiar a vista de registro -->
+      </form> <!-- Fin del formulario de login -->
+      <div id="login-msg" class="msg"></div> <!-- Div para mostrar mensajes de error o éxito en login -->
+    </div> <!-- Fin de la sección de acceso -->
+
+    <div id="register-view" class="hidden"> <!-- Sección para registro de nuevos clientes (oculta por defecto) -->
+      <h2>Registro de nuevo cliente</h2> <!-- Subtítulo de registro -->
+      <form id="register-form" novalidate> <!-- Formulario de creación de cuenta -->
+        <label>Nombre</label> <!-- Etiqueta para nombre -->
+        <input type="text" id="reg-nombre" required /> <!-- Campo de texto para nombre -->
+
+        <label>Apellido</label> <!-- Etiqueta para apellido -->
+        <input type="text" id="reg-apellido" required /> <!-- Campo de texto para apellido -->
+
+        <label>Email</label> <!-- Etiqueta para email -->
+        <input type="email" id="reg-email" required /> <!-- Campo de email -->
+
+        <label>Contraseña</label> <!-- Etiqueta para contraseña -->
+        <input type="password" id="reg-pass" required /> <!-- Campo de contraseña -->
+
+        <button type="submit">Crear cuenta</button> <!-- Botón para enviar registro -->
+        <button type="button" id="reg-cancel">Cancelar</button> <!-- Botón para volver al login -->
+      </form> <!-- Fin del formulario de registro -->
+      <div id="reg-msg" class="msg"></div> <!-- Div para mensajes de registro -->
+    </div> <!-- Fin de la sección de registro -->
+
+      <div id="app-view" class="hidden"> <!-- Vista principal de la aplicación tras loguearse (oculta) -->
+      <h2>Panel</h2> <!-- Título del panel de usuario -->
+      <div id="welcome"></div> <!-- Div donde se mostrará el mensaje de bienvenida personalizado -->
+      <p id="role-info" style="font-weight: bold; color: #4b5563;"></p> <!-- Línea para mostrar el rol del usuario logueado -->
+      <p>Acceso concedido. Aquí podrás gestionar tus incidencias.</p> <!-- Texto informativo general -->
+      <button id="logout">Cerrar sesión</button> <!-- Botón para salir del sistema -->
+
+      <hr /> <!-- Línea horizontal separadora -->
+
+      <div id="cliente-view" class="role-view hidden"> <!-- Vista exclusiva para el rol CLIENTE -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;"> <!-- Contenedor flexible -->
+          <h3 style="margin: 0;">Tus Incidencias</h3> <!-- Título de la lista de incidencias propias -->
+          <button class="btn-nueva-incidencia">Crear Incidencia</button> <!-- Botón para abrir el formulario de nueva incidencia -->
+        </div> <!-- Fin del contenedor flexible -->
+
+        <div class="create-incidencia-view hidden" style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;"> <!-- Formulario de creación (oculto) -->
+          <h4>Nueva Incidencia</h4> <!-- Subtítulo del formulario -->
+          <form class="incidencia-form" novalidate> <!-- Formulario de datos de la incidencia -->
+            <label>Título</label> <!-- Etiqueta para título -->
+            <input type="text" class="inc-titulo" required /> <!-- Campo de texto para el título -->
+
+            <label>Descripción</label> <!-- Etiqueta para descripción -->
+            <textarea class="inc-desc" rows="3" style="width: 100%; padding: 10px 12px; border: 1px solid #dbe0ea; border-radius: 8px; margin-top: 6px; font-family: inherit; resize: vertical;" required></textarea> <!-- Área de texto para la descripción -->
+
+            <label>Prioridad</label> <!-- Etiqueta para prioridad -->
+            <select class="inc-prioridad"> <!-- Selector de prioridad -->
+              <option value="BAJA">Baja</option> <!-- Opción baja -->
+              <option value="MEDIA" selected>Media</option> <!-- Opción media (predeterminada) -->
+              <option value="ALTA">Alta</option> <!-- Opción alta -->
+            </select> <!-- Fin del selector -->
+
+            <button type="submit">Guardar</button> <!-- Botón para crear incidencia -->
+            <button type="button" class="inc-cancel">Cancelar</button> <!-- Botón para cerrar el formulario -->
+          </form> <!-- Fin del formulario -->
+          <div class="inc-msg msg"></div> <!-- Mensajes de error/éxito al crear -->
+        </div> <!-- Fin de la sección de creación -->
+
+        <ul id="incidencias-list" class="inc-list"></ul> <!-- Lista dinámica de incidencias del cliente -->
+      </div> <!-- Fin de la vista de cliente -->
+
+      <div id="empleado-view" class="role-view hidden"> <!-- Vista exclusiva para el rol EMPLEADO -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;"> <!-- Cabecera flexible -->
+          <h3 style="margin: 0;">Panel de Empleado - Todas las Incidencias</h3> <!-- Título del panel de empleado -->
+        </div> <!-- Fin de cabecera -->
+
+        <ul id="todas-incidencias-list" class="inc-list"></ul> <!-- Lista de todas las incidencias del sistema -->
+      </div> <!-- Fin de la vista de empleado -->
+
+      <div id="notes-template" class="hidden"> <!-- Plantilla para el registro de notas embebido -->
+        <div class="notes-container" style="margin-top: 20px; border-top: 2px solid var(--border); padding-top: 20px;"> <!-- Sección de notas/comentarios -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;"> <!-- Cabecera de notas -->
+            <h3 class="chat-title" style="margin: 0;">Historial de Notas</h3> <!-- Título del historial de notas -->
+            <button class="btn-cerrar-notas" style="background: var(--text-muted);">Cerrar Notas</button> <!-- Botón para ocultar las notas -->
+          </div> <!-- Fin cabecera notas -->
+          
+          <div class="chat-messages" style="max-height: 400px; overflow-y: auto; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 15px;"> <!-- Contenedor de las notas (tarjetas) -->
+          </div> <!-- Fin contenedor notas -->
+
+          <div class="chat-form-container"> <!-- Contenedor del formulario para añadir notas -->
+            <form class="chat-form" style="display: flex; flex-direction: column; gap: 10px;"> <!-- Formulario de nota -->
+              <textarea class="chat-input" placeholder="Añadir una nota a la incidencia..." rows="3" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; resize: vertical;" required></textarea> <!-- Campo para escribir la nota -->
+              <button type="submit" style="align-self: flex-end;">Añadir Nota</button> <!-- Botón para enviar la nota -->
+            </form> <!-- Fin formulario nota -->
+            <div class="chat-status-msg hidden" style="color: var(--text-muted); text-align: center; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px dashed var(--border);"> <!-- Mensaje de bloqueo de notas -->
+              Esta incidencia aún no ha sido atendida por ningún técnico.
+            </div> <!-- Fin mensaje bloqueo -->
+          </div> <!-- Fin contenedor formulario notas -->
+        </div> <!-- Fin de la sección de notas -->
+      </div> <!-- Fin de la plantilla de notas -->
+
+      <div id="admin-view" class="role-view hidden"> <!-- Vista exclusiva para el rol ADMINISTRADOR -->
+        <h3>Panel de Administración</h3> <!-- Título de administración -->
+        <div class="tabs"> <!-- Sistema de pestañas -->
+          <button class="tab-btn active" data-tab="tab-usuarios">Usuarios</button> <!-- Pestaña de usuarios -->
+          <button class="tab-btn" data-tab="tab-todas-incidencias">Incidencias</button> <!-- Pestaña de incidencias -->
+        </div> <!-- Fin pestañas -->
+        
+        <div id="tab-usuarios" class="tab-content"> <!-- Contenido de la pestaña usuarios -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h4 style="margin: 0;">Lista de Usuarios</h4>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="text" id="search-usuarios" placeholder="Buscar por nombre..." style="padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; width: 250px;">
+              <button id="btn-nuevo-usuario" class="btn-primary">Crear Nuevo Usuario</button>
+            </div>
+          </div>
+
+          <!-- Formulario de creación/edición de usuario (oculto por defecto) -->
+          <div id="usuario-form-view" class="hidden" style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
+            <h4 id="usuario-form-title">Nuevo Usuario</h4>
+            <form id="usuario-form" novalidate>
+              <input type="hidden" id="user-id" />
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                  <label>Nombre</label>
+                  <input type="text" id="user-nombre" required />
+                </div>
+                <div>
+                  <label>Apellido</label>
+                  <input type="text" id="user-apellido" required />
+                </div>
+              </div>
+              <label>Email</label>
+              <input type="email" id="user-email" required />
+              
+              <label id="label-user-pass">Contraseña</label>
+              <input type="password" id="user-pass" />
+              <small id="pass-help" class="hidden">Dejar en blanco para no cambiar</small>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                  <label>Rol</label>
+                  <select id="user-rol" disabled style="background-color: #f3f4f6; cursor: not-allowed;">
+                    <option value="CLIENTE">Cliente</option>
+                    <option value="EMPLEADO">Empleado</option>
+                  </select>
+                  <small style="color: var(--text-muted); font-size: 0.75rem;">Determinado por el dominio del email</small>
+                </div>
+                <div>
+                  <label>Estado</label>
+                  <select id="user-activo">
+                    <option value="true">Activo</option>
+                    <option value="false">Inactivo</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="margin-top: 20px;">
+                <button type="submit">Guardar Usuario</button>
+                <button type="button" id="user-cancel" class="btn-secondary">Cancelar</button>
+              </div>
+            </form>
+            <div id="user-msg" class="msg"></div>
+          </div>
+
+          <table id="usuarios-table" style="width: 100%; border-collapse: collapse;"> <!-- Tabla de usuarios -->
+            <thead> <!-- Cabecera de la tabla -->
+              <tr style="border-bottom: 2px solid #e5e7eb; text-align: left;"> <!-- Fila de cabecera -->
+                <th style="padding: 10px;">Nombre</th> <!-- Columna nombre -->
+                <th style="padding: 10px;">Email</th> <!-- Columna email -->
+                <th style="padding: 10px;">Rol</th> <!-- Columna rol -->
+                <th style="padding: 10px;">Estado</th>
+                <th style="padding: 10px;">Acciones</th> <!-- Columna acciones -->
+              </tr> <!-- Fin fila cabecera -->
+            </thead> <!-- Fin thead -->
+            <tbody id="usuarios-body"></tbody> <!-- Cuerpo dinámico de la tabla de usuarios -->
+          </table> <!-- Fin tabla -->
+        </div> <!-- Fin pestaña usuarios -->
+
+        <div id="tab-todas-incidencias" class="tab-content hidden"> <!-- Contenido pestaña todas las incidencias -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;"> <!-- Cabecera -->
+            <h4 style="margin: 0;">Incidencias Activas</h4> <!-- Título incidencias abiertas -->
+          </div> <!-- Fin cabecera -->
+          <ul id="admin-incidencias-list" class="inc-list"></ul> <!-- Lista dinámica de incidencias activas -->
+
+          <div style="margin-top: 30px;"> <!-- Historial de cerradas -->
+            <h4>Historial de Incidencias Cerradas</h4> <!-- Título historial -->
+            <table class="usuarios-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;"> <!-- Tabla de historial -->
+              <thead> <!-- Cabecera historial -->
+                <tr style="border-bottom: 2px solid #e5e7eb; text-align: left;"> <!-- Fila -->
+                  <th style="padding: 10px;">Título</th> <!-- Columna título -->
+                  <th style="padding: 10px;">Cliente</th> <!-- Columna cliente -->
+                  <th style="padding: 10px;">Prioridad</th> <!-- Columna prioridad -->
+                  <th style="padding: 10px;">Fecha</th> <!-- Columna fecha -->
+                  <th style="padding: 10px;">Acciones</th> <!-- Columna ver detalles -->
+                </tr> <!-- Fin fila -->
+              </thead> <!-- Fin thead -->
+              <tbody id="admin-historial-incidencias-body"></tbody> <!-- Cuerpo dinámico historial -->
+            </table> <!-- Fin tabla historial -->
+          </div> <!-- Fin sección historial -->
+        </div> <!-- Fin pestaña incidencias -->
+      </div> <!-- Fin vista administrador -->
+    </div> <!-- Fin app-view -->
+  </div> <!-- Fin container principal -->
+
+  <script src="/app.js"></script> <!-- Enlace al archivo de lógica JavaScript -->
+</body> <!-- Fin del cuerpo -->
+</html> <!-- Fin del documento HTML -->
