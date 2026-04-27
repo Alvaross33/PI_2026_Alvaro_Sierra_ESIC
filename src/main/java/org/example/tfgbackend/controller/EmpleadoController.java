@@ -1,23 +1,22 @@
-package org.example.tfgbackend.controller; // Paquete de controladores
+package org.example.tfgbackend.controller;
 
-import org.example.tfgbackend.dto.EmpleadoCreateDTO; // DTO para creación
-import org.example.tfgbackend.dto.EmpleadoDTO; // DTO de salida
-import org.example.tfgbackend.dto.EmpleadoUpdateDTO; // DTO para actualización
+import org.example.tfgbackend.dto.EmpleadoCreateDTO;
+import org.example.tfgbackend.dto.EmpleadoDTO;
+import org.example.tfgbackend.dto.EmpleadoUpdateDTO;
 import org.example.tfgbackend.model.Cliente;
 import org.example.tfgbackend.model.Rol;
 import org.example.tfgbackend.service.ClienteService;
-import org.example.tfgbackend.service.EmpleadoService; // Servicio de empleado
+import org.example.tfgbackend.service.EmpleadoService;
 import org.example.tfgbackend.service.IncidenciaService;
-import org.springframework.beans.factory.annotation.Autowired; // Inyección
-import org.springframework.http.ResponseEntity; // Respuesta HTTP
-import org.springframework.web.bind.annotation.*; // Anotaciones REST
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import java.util.List; // Colecciones
-import java.util.stream.Collectors; // Streams
-
-@RestController // Controlador REST
-@RequestMapping("/api/empleados") // Ruta base
-public class EmpleadoController { // Gestión de empleados
+@RestController
+@RequestMapping("/api/empleados")
+public class EmpleadoController {
 
     @Autowired // Inyectar servicio
     private EmpleadoService empleadoService;

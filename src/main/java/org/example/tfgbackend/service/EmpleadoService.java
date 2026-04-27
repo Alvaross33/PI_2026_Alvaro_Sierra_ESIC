@@ -1,17 +1,17 @@
-package org.example.tfgbackend.service; // Paquete de lógica de negocio
+package org.example.tfgbackend.service;
 
-import org.example.tfgbackend.model.Empleado; // Importación de la entidad Empleado
-import org.example.tfgbackend.repository.EmpleadoRepository; // Repositorio de Empleados
-import org.springframework.beans.factory.annotation.Autowired; // Inyección automática
-import org.springframework.stereotype.Service; // Anotación de servicio de Spring
+import org.example.tfgbackend.model.Empleado;
+import org.example.tfgbackend.repository.EmpleadoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.List; // Importación de colecciones
-import java.util.Optional; // Manejo seguro de nulos
+import java.util.List;
+import java.util.Optional;
 
-@Service // Clase que gestiona la lógica de los empleados
-public class EmpleadoService { // Implementación del servicio de Empleados
+@Service
+public class EmpleadoService {
 
-    @Autowired // Spring inyecta la instancia del repositorio
+    @Autowired
     private EmpleadoRepository empleadoRepository;
 
     public List<Empleado> findAll() { // Devuelve todos los empleados de la BD

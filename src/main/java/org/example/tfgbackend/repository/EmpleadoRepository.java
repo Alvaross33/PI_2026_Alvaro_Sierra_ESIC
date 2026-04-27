@@ -1,12 +1,12 @@
-package org.example.tfgbackend.repository; // Paquete de acceso a datos
+package org.example.tfgbackend.repository;
 
-import org.example.tfgbackend.model.Empleado; // Importación del modelo de datos Empleado
-import org.springframework.data.jpa.repository.JpaRepository; // Interfaz genérica de Spring para repositorios JPA
-import org.springframework.stereotype.Repository; // Indica que es un componente de Spring de tipo repositorio
+import org.example.tfgbackend.model.Empleado;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository // Permite que Spring gestione esta interfaz como un bean
-public interface EmpleadoRepository extends JpaRepository<Empleado, Long> { // Proporciona métodos CRUD para la entidad Empleado
+@Repository
+public interface EmpleadoRepository extends JpaRepository<Empleado, Long> {
     Optional<Empleado> findByCorreoIgnoreCase(String correo);
 }

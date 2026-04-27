@@ -1,36 +1,36 @@
-package org.example.tfgbackend.controller; // Paquete de controladores API
+package org.example.tfgbackend.controller;
 
-import org.example.tfgbackend.dto.IncidenciaCreateDTO; // DTO para creación
-import org.example.tfgbackend.dto.IncidenciaDTO; // DTO de salida
-import org.example.tfgbackend.dto.IncidenciaUpdateDTO; // DTO para actualización
-import org.example.tfgbackend.service.ClienteService; // Servicio para gestionar clientes
-import org.example.tfgbackend.service.EmpleadoService; // Servicio para gestionar empleados
-import org.example.tfgbackend.service.IncidenciaService; // Servicio para gestionar incidencias
-import org.springframework.beans.factory.annotation.Autowired; // Inyección de dependencias
-import org.springframework.http.ResponseEntity; // Manejo de respuestas HTTP
-import org.springframework.web.bind.annotation.*; // Anotaciones REST de Spring
+import org.example.tfgbackend.dto.IncidenciaCreateDTO;
+import org.example.tfgbackend.dto.IncidenciaDTO;
+import org.example.tfgbackend.dto.IncidenciaUpdateDTO;
+import org.example.tfgbackend.service.ClienteService;
+import org.example.tfgbackend.service.EmpleadoService;
+import org.example.tfgbackend.service.IncidenciaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List; // Uso de listas de Java
-import java.util.stream.Collectors; // Procesamiento de flujos de datos
+import java.util.List;
+import java.util.stream.Collectors;
 
-@RestController // Define la clase como controlador de servicios REST
-@RequestMapping("/api/incidencias") // Ruta base de los recursos de incidencias
-public class IncidenciaController { // Controlador principal de incidencias
+@RestController
+@RequestMapping("/api/incidencias")
+public class IncidenciaController {
 
-    @Autowired // Spring inyecta automáticamente los servicios requeridos
+    @Autowired
     private IncidenciaService incidenciaService;
 
-    @Autowired // Inyección del servicio de clientes
+    @Autowired
     private ClienteService clienteService;
 
-    @Autowired // Inyección del servicio de empleados
+    @Autowired
     private EmpleadoService empleadoService;
 
     @GetMapping // Endpoint GET para obtener todas las incidencias (Admin/Empleado)
     public List<IncidenciaDTO> getAll() {
-        return incidenciaService.findAll().stream() // Convierte lista de entidades
-                .map(IncidenciaDTO::fromEntity) // Transforma cada entidad a su DTO correspondiente
-                .collect(Collectors.toList()); // Retorna la lista resultante
+        return incidenciaService.findAll().stream()
+                .map(IncidenciaDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/cliente/{clienteId}") // Endpoint GET para filtrar incidencias por cliente

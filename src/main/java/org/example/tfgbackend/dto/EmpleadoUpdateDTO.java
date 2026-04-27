@@ -30,7 +30,7 @@ public class EmpleadoUpdateDTO {
         if (this.rol != null) {
             empleado.setRol(this.rol);
         } else if (this.correo != null) {
-            // Recalcular rol si cambia el correo y no se especifica rol
+            // revisar el rol si cambia el correo y no se especifica rol
             Rol assignedRol = this.correo.toLowerCase().endsWith("@incidencias.com") 
                     ? Rol.EMPLEADO : Rol.ADMINISTRADOR;
             empleado.setRol(assignedRol);

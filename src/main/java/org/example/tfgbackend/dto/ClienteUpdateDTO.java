@@ -14,6 +14,10 @@ import org.springframework.http.ResponseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * DTO (Data Transfer Object) utilizado para la actualización de un Cliente.
+ * Encapsula los datos que pueden ser modificados por un usuario o administrador.
+ */
 public class ClienteUpdateDTO {
     private String nombre;
     private String apellido;

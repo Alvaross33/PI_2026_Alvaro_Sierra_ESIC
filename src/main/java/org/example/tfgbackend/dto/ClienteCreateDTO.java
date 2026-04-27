@@ -14,6 +14,10 @@ import org.springframework.http.ResponseEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+/**
+ * DTO utilizado para la creación de un nuevo Cliente.
+ * Contiene la información requerida durante el proceso de registro en el sistema.
+ */
 public class ClienteCreateDTO {
     private String nombre;
     private String apellido;

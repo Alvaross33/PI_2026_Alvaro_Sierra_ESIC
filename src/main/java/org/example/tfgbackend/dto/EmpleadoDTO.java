@@ -1,7 +1,7 @@
-package org.example.tfgbackend.dto; // Paquete de DTOs
+package org.example.tfgbackend.dto;
 
-import lombok.*; // Utilidades Lombok
-import org.example.tfgbackend.model.Empleado; // Importación de la entidad Empleado
+import lombok.*;
+import org.example.tfgbackend.model.Empleado;
 import org.example.tfgbackend.model.Rol;
 
 import org.example.tfgbackend.service.EmpleadoService;

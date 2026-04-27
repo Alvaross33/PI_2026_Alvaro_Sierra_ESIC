@@ -1,9 +1,15 @@
+/* 
+   Constantes globales y selectores rápidos para manipulación del DOM 
+*/
 const API = '/api';
 
 const q = (s) => document.querySelector(s);
 const show = (id) => q(id).classList.remove('hidden');
 const hide = (id) => q(id).classList.add('hidden');
 
+/* 
+   Variables de estado global de la aplicación 
+*/
 const state = {
   usuario: null,
   incidenciaActiva: null,
@@ -11,7 +17,9 @@ const state = {
   usuarios: []
 };
 
-// Función para mostrar notificaciones personalizadas
+/* 
+   Funciones de utilidad y notificaciones 
+*/
 function showNotification(message, duration = 3000) {
   const container = q('#custom-alert-container');
   container.textContent = message;
@@ -22,7 +30,9 @@ function showNotification(message, duration = 3000) {
   }, duration);
 }
 
-// Función para validar un formulario
+/* 
+   Validación de formularios 
+*/
 function validateForm(form) {
   const inputs = form.querySelectorAll('[required]');
   let isValid = true;
@@ -42,6 +52,9 @@ function validateForm(form) {
   return isValid;
 }
 
+/* 
+   Autenticación de usuario: Verifica credenciales contra el servidor 
+*/
 async function login(email, pass) {
   const res = await fetch(`${API}/clientes/login`, {
     method: 'POST',
@@ -57,7 +70,9 @@ async function login(email, pass) {
   throw new Error('Error en el servidor');
 }
 
-// Función para que un empleado asigne una incidencia a sí mismo
+/* 
+   Atender incidencia: Asigna el empleado actual a la incidencia 
+*/
 async function atenderIncidencia(incidenciaId, silencioso = false) {
   try {
     const res = await fetch(`${API}/incidencias/${incidenciaId}`);
@@ -76,21 +91,27 @@ async function atenderIncidencia(incidenciaId, silencioso = false) {
     if (putRes.ok) {
       const updatedInc = await putRes.json();
       
-      // En lugar de recargar toda la lista, actualizamos el DOM de la incidencia actual
+      /* 
+         Actualizamos el DOM directamente si la incidencia está visible 
+      */
       if (state.incidenciaActiva && state.incidenciaActiva.incidenciaId === updatedInc.incidenciaId) {
         state.incidenciaActiva = updatedInc;
       }
       
       const liElement = document.querySelector(`li[data-id="${incidenciaId}"]`);
       if (liElement) {
-        // Actualizar datos del elemento
+        /* 
+           Actualizar datos y elementos visuales de la incidencia 
+        */
         liElement._incData = updatedInc;
         
         // Actualizar etiqueta de estado
         const estadoTag = liElement.querySelector('.estado-tag');
         if (estadoTag) estadoTag.textContent = updatedInc.estado;
 
-        // Cambiar botón de Atender a Finalizar
+        /* 
+           Cambio dinámico del botón de acción 
+        */
         const btnAtender = liElement.querySelector('.btn-atender-incidencia');
         if (btnAtender) {
           const newBtn = document.createElement('button');
@@ -104,7 +125,9 @@ async function atenderIncidencia(incidenciaId, silencioso = false) {
           btnAtender.replaceWith(newBtn);
         }
 
-        // Si el chat de notas está abierto, actualizar su estado para mostrar formulario
+        /* 
+           Si el chat está abierto, habilitamos el formulario 
+        */
         const statusMsg = liElement.querySelector('.chat-status-msg');
         const form = liElement.querySelector('.chat-form');
         if (statusMsg && form && updatedInc.empleadoId) {
@@ -114,14 +137,18 @@ async function atenderIncidencia(incidenciaId, silencioso = false) {
 
         if (!silencioso) {
           showNotification('Incidencia atendida correctamente');
-          // Solo abrimos las notas si no estaban abiertas
+          /* 
+             Abrir notas si no están visibles 
+          */
           const existingNotes = liElement.querySelector('.notes-container');
           if (!existingNotes) {
             abrirNotas(updatedInc, liElement);
           }
         }
       } else {
-        // Fallback si no se encuentra el elemento en el DOM
+        /* 
+           Fallback: recarga completa si el elemento no se encuentra 
+        */
         refreshIncidencias();
         if (!silencioso) {
           showNotification('Incidencia atendida correctamente');
@@ -140,6 +167,9 @@ async function atenderIncidencia(incidenciaId, silencioso = false) {
   }
 }
 
+/* 
+   Actualización de prioridad: Permite modificar el nivel de urgencia de una incidencia 
+*/
 async function cambiarPrioridad(incidenciaId, nuevaPrioridad) {
   try {
     const res = await fetch(`${API}/incidencias/${incidenciaId}`);
@@ -165,27 +195,29 @@ async function cambiarPrioridad(incidenciaId, nuevaPrioridad) {
   }
 }
 
-// Función para marcar una incidencia como cerrada
+/* 
+   Cerrar incidencia: Finaliza el proceso y mueve al historial 
+*/
 async function cerrarIncidencia(incidenciaId) {
-  if (!confirm('¿Estás seguro de que deseas cerrar esta incidencia? Se moverá al historial.')) return; // Confirmación de seguridad
+  if (!confirm('¿Estás seguro de que deseas cerrar esta incidencia? Se moverá al historial.')) return;
 
   try {
-    const res = await fetch(`${API}/incidencias/${incidenciaId}`); // Obtiene datos actuales
+    const res = await fetch(`${API}/incidencias/${incidenciaId}`);
     if (!res.ok) throw new Error('No se pudo obtener la incidencia');
     const inc = await res.json();
 
-    inc.estado = 'CERRADA'; // Cambia el estado a Cerrada
+    inc.estado = 'CERRADA';
 
-    const putRes = await fetch(`${API}/incidencias/${incidenciaId}`, { // Actualiza en servidor
+    const putRes = await fetch(`${API}/incidencias/${incidenciaId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(inc)
     });
 
-    if (putRes.ok) { // Si se cerró correctamente
+    if (putRes.ok) {
       showNotification('Incidencia cerrada y movida al historial');
-      onLogged(state.usuario); // Refresca las listas
-      cerrarNotasActuales(); // Cierra el panel de notas si estuviera abierto
+      onLogged(state.usuario);
+      cerrarNotasActuales();
     } else {
       showNotification('Error al cerrar la incidencia');
     }
@@ -195,8 +227,13 @@ async function cerrarIncidencia(incidenciaId) {
   }
 }
 
-// --- GESTIÓN DE USUARIOS (ADMIN) ---
+/* 
+   GESTIÓN DE USUARIOS (ADMINISTRACIÓN) 
+*/
 
+/* 
+   Obtención de lista de usuarios: Recupera todos los clientes/empleados para el panel de administración 
+*/
 async function fetchUsuarios() {
   try {
     const res = await fetch(`${API}/clientes`);
@@ -208,6 +245,9 @@ async function fetchUsuarios() {
   }
 }
 
+/* 
+   Renderizado de la tabla de usuarios: Muestra la lista y aplica filtros de búsqueda si los hay 
+*/
 function renderUsuarios(filtro = '') {
   const tbody = q('#usuarios-body');
   if (!tbody) return;
@@ -239,7 +279,9 @@ function renderUsuarios(filtro = '') {
     tbody.appendChild(tr);
   });
 
-  // Eventos para botones de la tabla
+  /* 
+     Eventos para acciones sobre usuarios 
+  */
   tbody.querySelectorAll('.btn-edit-user').forEach(btn => {
     btn.addEventListener('click', () => abrirFormUsuario(btn.dataset.id));
   });
@@ -248,6 +290,9 @@ function renderUsuarios(filtro = '') {
   });
 }
 
+/* 
+   Apertura del formulario de usuarios: Prepara la vista para crear o editar (si recibe un ID) un usuario 
+*/
 function abrirFormUsuario(id = null) {
   const formView = q('#usuario-form-view');
   const title = q('#usuario-form-title');
@@ -282,15 +327,21 @@ function abrirFormUsuario(id = null) {
   }
 }
 
+/* 
+   Activación/Desactivación de usuarios: Controla el acceso de los clientes o empleados al sistema 
+*/
 async function toggleUsuarioActivo(id) {
   const u = state.usuarios.find(user => user.clienteId == id);
   if (!u) return;
   
+  /* 
+     Confirmación de seguridad para activar/desactivar 
+  */
   const confirmMsg = u.activo 
     ? `¿Estás seguro de que deseas desactivar a ${u.nombre}? No podrá iniciar sesión.`
     : `¿Deseas activar a ${u.nombre}?`;
     
-  if (!confirm(confirmMsg)) return; // Se mantiene confirm() por ser una acción crítica de seguridad
+  if (!confirm(confirmMsg)) return;
 
   const data = { ...u, activo: !u.activo };
   try {
@@ -310,39 +361,47 @@ async function toggleUsuarioActivo(id) {
   }
 }
 
-// Función para abrir la vista de notas de una incidencia concreta (ahora embebida)
+/* 
+   Gestión de notas: Apertura, cierre y visualización embebida 
+*/
 async function abrirNotas(incidencia, elemento = null) {
   if (!elemento) return;
 
-  // Si ya estaba abierta en este mismo elemento, no hacemos nada (o podríamos cerrarla)
+  /* 
+     Alternar visibilidad si ya existe el contenedor 
+  */
   const existingNotes = elemento.querySelector('.notes-container');
   if (existingNotes) {
     cerrarNotasActuales();
     return;
   }
 
-  // Primero cerramos cualquier otra nota abierta para evitar duplicados
+  /* 
+     Cierre de otras notas abiertas para mantener orden 
+  */
   cerrarNotasActuales();
 
-  state.incidenciaActiva = incidencia; // Establece la incidencia en el estado global
+  state.incidenciaActiva = incidencia;
 
-  // Clonamos la plantilla de notas
+  /* 
+     Clonación de la plantilla de notas 
+  */
   const template = q('#notes-template').firstElementChild.cloneNode(true);
 
-  // Configuramos el formulario y eventos de la nueva instancia
   const form = template.querySelector('.chat-form');
   const input = template.querySelector('.chat-input');
   const messagesContainer = template.querySelector('.chat-messages');
   const closeBtn = template.querySelector('.btn-cerrar-notas');
   const statusMsg = template.querySelector('.chat-status-msg');
 
-  // Evento para cerrar
+  /* 
+     Eventos de cierre y envío de notas 
+  */
   closeBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     cerrarNotasActuales();
   });
 
-  // Evento para enviar nota
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const contenido = input.value.trim();
@@ -351,14 +410,13 @@ async function abrirNotas(incidencia, elemento = null) {
     }
   });
 
-  // Mostramos/ocultamos formulario según el rol y si está asignada
-  // Los Clientes siempre pueden añadir notas (sus propias dudas)
-  // Los Empleados/Admin solo si la incidencia está asignada (a ellos u otro)
+  /* 
+     Control de permisos para añadir notas según el rol 
+  */
   if (state.usuario.rol === 'CLIENTE') {
     statusMsg.classList.add('hidden');
     form.classList.remove('hidden');
   } else {
-    // Para Empleados/Admin, solo mostramos el formulario si la incidencia está atendida
     if (incidencia.empleadoId) {
       statusMsg.classList.add('hidden');
       form.classList.remove('hidden');
@@ -369,25 +427,29 @@ async function abrirNotas(incidencia, elemento = null) {
     }
   }
 
-  // Guardamos la incidencia en el elemento para recuperarla fácilmente
+  /* 
+     Inyección en el DOM e inicio del polling 
+  */
   elemento._incData = incidencia;
-
-  // Inyectamos la plantilla en el elemento de la incidencia
   elemento.appendChild(template);
 
-  cargarNotas(messagesContainer); // Carga las notas inmediatamente en el nuevo contenedor
+  cargarNotas(messagesContainer);
 
-  if (state.notasInterval) clearInterval(state.notasInterval); // Limpia intervalos previos
+  if (state.notasInterval) clearInterval(state.notasInterval);
   state.notasInterval = setInterval(() => cargarNotas(messagesContainer), 10000);
 
   elemento.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Función para cerrar las notas que estén abiertas actualmente
+/* 
+   Cierre y limpieza de contenedores de notas 
+*/
 function cerrarNotasActuales() {
   const allContainers = document.querySelectorAll('.notes-container');
   allContainers.forEach(c => {
-    // No eliminar la plantilla original
+    /* 
+       Evitar eliminar el template original 
+    */
     if (!c.closest('#notes-template')) {
       c.remove();
     }
@@ -396,11 +458,15 @@ function cerrarNotasActuales() {
   if (state.notasInterval) clearInterval(state.notasInterval);
 }
 
-// Función para descargar y renderizar las notas de la incidencia activa
+/* 
+   Carga de notas: Obtiene las notas de la incidencia activa 
+*/
 async function cargarNotas(container = null) {
   if (!state.incidenciaActiva) return;
 
-  // Si no se pasa contenedor, intentamos buscarlo (por seguridad en el polling)
+  /* 
+     Localización del contenedor si no se proporciona 
+  */
   if (!container) {
     container = document.querySelector(`li[data-id="${state.incidenciaActiva.incidenciaId}"] .chat-messages, tr[data-id="${state.incidenciaActiva.incidenciaId}"] .chat-messages`);
   }
@@ -439,6 +505,9 @@ async function cargarNotas(container = null) {
       container.appendChild(card);
     });
 
+    /* 
+       Auto-scroll si el usuario está al final del chat 
+    */
     if (isAtBottom) {
       container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
     }
@@ -447,7 +516,9 @@ async function cargarNotas(container = null) {
   }
 }
 
-// Función para enviar una nueva nota al servidor
+/* 
+   Añadir nota: Envía una nueva nota y gestiona la auto-atención 
+*/
 async function añadirNota(contenido, container, input) {
   if (!state.incidenciaActiva) return;
 
@@ -469,9 +540,10 @@ async function añadirNota(contenido, container, input) {
       input.value = '';
       cargarNotas(container);
       
-      // Si un empleado o admin deja una nota en una incidencia sin asignar, la atiende automáticamente
+      /* 
+         Auto-atención por parte de empleados/admin al responder 
+      */
       if ((state.usuario.rol === 'EMPLEADO' || state.usuario.rol === 'ADMINISTRADOR') && !state.incidenciaActiva.empleadoId) {
-        // Usamos modo silencioso para que no se cierre el chat ni salte el mensaje de éxito de "atender"
         atenderIncidencia(state.incidenciaActiva.incidenciaId, true);
       }
     }
@@ -480,35 +552,41 @@ async function añadirNota(contenido, container, input) {
   }
 }
 
-// Función para registrar un nuevo cliente en el sistema
+/* 
+   Registro de clientes 
+*/
 async function registrarCliente(data) {
-  const res = await fetch(`${API}/clientes`, { // Petición POST al endpoint de registro
+  const res = await fetch(`${API}/clientes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
 
-  if (res.status === 409) { // Conflicto: el email ya existe
+  if (res.status === 409) {
     const errorMsg = await res.text();
     throw new Error(errorMsg);
   }
 
   if (!res.ok) throw new Error('No se pudo registrar el cliente');
-  return res.json(); // Devuelve el usuario recién creado
+  return res.json();
 }
 
-// Función para crear una nueva incidencia (solo Clientes)
+/* 
+   Creación de incidencias 
+*/
 async function crearIncidencia(data) {
-  const res = await fetch(`${API}/incidencias`, { // Petición POST de creación
+  const res = await fetch(`${API}/incidencias`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
   if (!res.ok) throw new Error('No se pudo crear la incidencia');
-  return res.json(); // Devuelve la incidencia creada
+  return res.json();
 }
 
-// Genérica para obtener e inyectar datos
+/* 
+   Obtención de incidencias y filtrado según el estado y rol 
+*/
 async function fetchIncidencias(url, listId, historyBodyId) {
   console.log(`[DEBUG] Fetching incidencias from: ${url}`);
   const ul = q(listId);
@@ -530,10 +608,12 @@ async function fetchIncidencias(url, listId, historyBodyId) {
 
     const allIncidencias = Array.isArray(data) ? data : (data.incidencias || []);
 
-    let activas = allIncidencias.filter(i => i.estado !== 'CERRADA'); // Filtra las que no están cerradas
-    const cerradas = allIncidencias.filter(i => i.estado === 'CERRADA'); // Filtra las cerradas (historial)
+    let activas = allIncidencias.filter(i => i.estado !== 'CERRADA');
+    const cerradas = allIncidencias.filter(i => i.estado === 'CERRADA');
 
-    // Filtrar para Empleados: Solo ver incidencias sin asignar O asignadas a ellos mismos
+    /* 
+       Filtro específico para empleados 
+    */
     if (state.usuario && state.usuario.rol === 'EMPLEADO') {
       activas = activas.filter(i => !i.empleadoId || i.empleadoId === state.usuario.clienteId);
     }
@@ -548,6 +628,9 @@ async function fetchIncidencias(url, listId, historyBodyId) {
 }
 
 
+/* 
+   Renderizado de la lista de incidencias activas 
+*/
 function renderListaIncidencias(incidencias, container) {
   container.innerHTML = '';
   if (incidencias.length === 0) {
@@ -558,7 +641,10 @@ function renderListaIncidencias(incidencias, container) {
   incidencias.forEach(inc => {
     const li = document.createElement('li');
     li.setAttribute('data-id', inc.incidenciaId);
-    li._incData = inc; // Guardamos el objeto de la incidencia directamente en el nodo
+    /* 
+       Almacenamiento de datos directamente en el nodo 
+    */
+    li._incData = inc;
 
     let botones = `<button class="btn-ver-notas" style="background: var(--bg); color: var(--primary); border: 1px solid var(--primary); margin-right: 8px;">Ver Notas</button>`;
 
@@ -593,7 +679,9 @@ function renderListaIncidencias(incidencias, container) {
       </div>
     `;
 
-    // Asignamos eventos de forma segura
+    /* 
+       Asignación segura de eventos 
+    */
     li.querySelector('.btn-ver-notas').addEventListener('click', (e) => {
       e.stopPropagation();
       abrirNotas(li._incData, li);
@@ -619,7 +707,9 @@ function renderListaIncidencias(incidencias, container) {
   });
 }
 
-// Función para dibujar las filas del historial (incidencias cerradas)
+/* 
+   Renderizado del historial de incidencias (formato tabla) 
+*/
 function renderHistorialTabla(incidencias, tbody) {
   tbody.innerHTML = '';
   if (incidencias.length === 0) {
@@ -627,7 +717,10 @@ function renderHistorialTabla(incidencias, tbody) {
     return;
   }
 
-  incidencias.forEach(inc => { // Crea una fila <tr> por cada incidencia cerrada
+  /* 
+     Creación de filas para la tabla de historial 
+  */
+  incidencias.forEach(inc => {
     const tr = document.createElement('tr');
     tr.style.borderBottom = '1px solid #f3f4f6';
     tr.setAttribute('data-id', inc.incidenciaId);
@@ -652,12 +745,14 @@ function renderHistorialTabla(incidencias, tbody) {
   });
 }
 
-// Función exclusiva del Administrador para cargar la lista de todos los usuarios
+/* 
+   Carga de usuarios para administración 
+*/
 async function cargarUsuariosAdmin() {
   const tbody = q('#usuarios-body');
   tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
   try {
-    const res = await fetch(`${API}/clientes`); // Obtiene todos los usuarios
+    const res = await fetch(`${API}/clientes`);
     if (!res.ok) throw new Error('No se pudieron cargar los usuarios');
     const usuarios = await res.json();
 
@@ -666,7 +761,9 @@ async function cargarUsuariosAdmin() {
       const tr = document.createElement('tr');
       tr.style.borderBottom = '1px solid #f3f4f6';
 
-      // Lógica para el botón de cambio de rol dinámico
+      /* 
+         Lógica para acciones según el rol del usuario 
+      */
       const actions = user.rol === 'CLIENTE'
         ? `<button onclick="cambiarRol(${user.clienteId}, 'EMPLEADO')">Hacer Empleado</button>`
         : user.rol === 'EMPLEADO'
@@ -686,21 +783,23 @@ async function cargarUsuariosAdmin() {
   }
 }
 
-// Función para cambiar el rol de un usuario (Admin solamente)
+/* 
+   Cambio de rol de usuario 
+*/
 async function cambiarRol(id, nuevoRol) {
   try {
-    const userRes = await fetch(`${API}/clientes/${id}`); // Obtiene los datos del usuario actual
+    const userRes = await fetch(`${API}/clientes/${id}`);
     const user = await userRes.json();
-    user.rol = nuevoRol; // Cambia solo el campo rol
+    user.rol = nuevoRol;
 
-    const res = await fetch(`${API}/clientes/${id}`, { // Actualiza en el servidor
+    const res = await fetch(`${API}/clientes/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(user)
     });
 
     if (res.ok) {
-      cargarUsuariosAdmin(); // Recarga la tabla de usuarios para reflejar el cambio
+      cargarUsuariosAdmin();
     } else {
       alert('Error al cambiar el rol');
     }
@@ -710,7 +809,9 @@ async function cambiarRol(id, nuevoRol) {
   }
 }
 
-// Función que refresca las incidencias según el rol sin resetear la vista completa
+/* 
+   Refresco automático de listas según el rol 
+*/
 function refreshIncidencias() {
   if (!state.usuario) return;
   if (state.usuario.rol === 'ADMINISTRADOR') {
@@ -722,61 +823,73 @@ function refreshIncidencias() {
   }
 }
 
-// Vinculación de funciones al objeto window para poder llamarlas desde el HTML (onclick)
+/* 
+   Exposición de funciones al ámbito global 
+*/
 window.cambiarRol = cambiarRol;
 window.atenderIncidencia = atenderIncidencia;
 window.cerrarIncidencia = cerrarIncidencia;
 window.abrirNotas = abrirNotas;
 window.cerrarNotasActuales = cerrarNotasActuales;
-window.fetchIncidencias = fetchIncidencias; // Añadido para debugging si se necesita llamar desde consola
+window.fetchIncidencias = fetchIncidencias;
 
-// Función que se ejecuta cuando el usuario se loguea con éxito
+/* 
+   Inicialización tras el inicio de sesión exitoso 
+*/
 function onLogged(usuario) {
-  state.usuario = usuario; // Guarda el usuario en el estado global
-  localStorage.setItem('tfg_usuario', JSON.stringify(usuario)); // Persiste la sesión
-  q('#welcome').textContent = `Bienvenido/a, ${usuario.nombre} ${usuario.apellido}`; // Saludo personalizado
-  q('#role-info').textContent = `Rol: ${usuario.rol}`; // Muestra el rol actual
+  state.usuario = usuario;
+  localStorage.setItem('tfg_usuario', JSON.stringify(usuario));
+  q('#welcome').textContent = `Bienvenido/a, ${usuario.nombre} ${usuario.apellido}`;
+  q('#role-info').textContent = `Rol: ${usuario.rol}`;
 
-  hide('#auth-view'); // Oculta login
-  hide('#register-view'); // Oculta registro
-  show('#app-view'); // Muestra el panel principal
+  hide('#auth-view');
+  hide('#register-view');
+  show('#app-view');
 
-  // Oculta todas las sub-vistas de roles primero
+  /* 
+     Reset visual de vistas por rol 
+  */
   document.querySelectorAll('.role-view').forEach(v => v.classList.add('hidden'));
 
-  // Activa la vista correspondiente según el rol del usuario
+  /* 
+     Carga de datos según el rol 
+  */
   if (usuario.rol === 'ADMINISTRADOR') {
     show('#admin-view');
-    fetchUsuarios(); // Carga tabla de usuarios
-    fetchIncidencias(`${API}/incidencias`, '#admin-incidencias-list', '#admin-historial-incidencias-body'); // Carga todas las incidencias
+    fetchUsuarios();
+    fetchIncidencias(`${API}/incidencias`, '#admin-incidencias-list', '#admin-historial-incidencias-body');
   } else if (usuario.rol === 'EMPLEADO') {
     show('#empleado-view');
-    fetchIncidencias(`${API}/incidencias`, '#todas-incidencias-list'); // Carga todas las incidencias
-  } else { // Rol CLIENTE
+    fetchIncidencias(`${API}/incidencias`, '#todas-incidencias-list');
+  } else {
     show('#cliente-view');
-    fetchIncidencias(`${API}/incidencias/cliente/${usuario.clienteId}`, '#incidencias-list'); // Carga solo sus incidencias
+    fetchIncidencias(`${API}/incidencias/cliente/${usuario.clienteId}`, '#incidencias-list');
   }
 }
 
-// Evento para cambiar de vista de login a registro
+/* 
+   Eventos de navegación entre vistas 
+*/
 q('#btn-to-register').addEventListener('click', () => {
   hide('#auth-view');
   show('#register-view');
   q('#login-msg').textContent = '';
 });
 
-// Evento para procesar el formulario de inicio de sesión
+/* 
+   Procesamiento del inicio de sesión 
+*/
 q('#login-form').addEventListener('submit', async (e) => {
-  e.preventDefault(); // Evita que la página se recargue
+  e.preventDefault();
   if (!validateForm(e.target)) return;
   const email = q('#login-email').value.trim();
   const pass = q('#login-pass').value.trim();
   q('#login-msg').textContent = '';
 
   try {
-    const usuario = await login(email, pass); // Llama a la función de login
+    const usuario = await login(email, pass);
     if (usuario) {
-      onLogged(usuario); // Inicializa la aplicación si es correcto
+      onLogged(usuario);
     } else {
       q('#login-msg').textContent = 'Credenciales incorrectas o la cuenta no existe.';
     }
@@ -785,7 +898,9 @@ q('#login-form').addEventListener('submit', async (e) => {
   }
 });
 
-// Evento para procesar el formulario de registro de cliente
+/* 
+   Procesamiento del registro 
+*/
 q('#register-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!validateForm(e.target)) return;
@@ -793,72 +908,87 @@ q('#register-form').addEventListener('submit', async (e) => {
     nombre: q('#reg-nombre').value.trim(),
     apellido: q('#reg-apellido').value.trim(),
     correo: q('#reg-email').value.trim(),
-    contrasena: q('#reg-pass').value.trim(), // Contraseña en texto plano
+    contrasena: q('#reg-pass').value.trim(),
     activo: true,
-    rol: 'CLIENTE' // Por defecto se registran como clientes
+    rol: 'CLIENTE'
   };
   q('#reg-msg').textContent = '';
   try {
-    const usuario = await registrarCliente(data); // Llama a la función de registro
-    onLogged(usuario); // Loguea automáticamente tras registrarse
+    const usuario = await registrarCliente(data);
+    onLogged(usuario);
   } catch (err) {
     q('#reg-msg').textContent = err.message;
   }
 });
 
-// Evento para volver al login desde el registro
+/* 
+   Navegación: Vuelve al formulario de inicio de sesión desde la vista de registro 
+*/
 q('#reg-cancel').addEventListener('click', () => {
   hide('#register-view');
   show('#auth-view');
 });
 
-// Evento para cerrar la sesión actual
+/* 
+   Cierre de sesión y limpieza de estado 
+*/
 q('#logout').addEventListener('click', () => {
   state.usuario = null;
-  localStorage.removeItem('tfg_usuario'); // Elimina la sesión persistida
+  localStorage.removeItem('tfg_usuario');
   cerrarNotasActuales();
   hide('#app-view');
   show('#auth-view');
-  q('#login-form').reset(); // Limpia campos de login
-  q('#register-form').reset(); // Limpia campos de registro
-  document.querySelectorAll('.create-incidencia-view').forEach(v => v.classList.add('hidden')); // Cierra formulario de creación si estaba abierto
-  document.querySelectorAll('.btn-nueva-incidencia').forEach(b => b.style.display = 'block'); // Vuelve a mostrar el botón "Crear"
+  q('#login-form').reset();
+  q('#register-form').reset();
+  /* 
+     Reset visual de formularios secundarios 
+  */
+  document.querySelectorAll('.create-incidencia-view').forEach(v => v.classList.add('hidden'));
+  document.querySelectorAll('.btn-nueva-incidencia').forEach(b => b.style.display = 'block');
 });
 
 
-// Eventos para el sistema de pestañas de Administrador
+/* 
+   Gestión de pestañas (Tabs) para Administrador 
+*/
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     cerrarNotasActuales();
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); // Quita estilo activo
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden')); // Oculta todos los contenidos
-    btn.classList.add('active'); // Activa la pestaña clickeada
-    show(`#${btn.dataset.tab}`); // Muestra el contenido asociado (tab-usuarios o tab-todas-incidencias)
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+    btn.classList.add('active');
+    show(`#${btn.dataset.tab}`);
   });
 });
 
-// Evento para mostrar el formulario de creación de incidencia
+/* 
+   Apertura del formulario de nueva incidencia 
+*/
 document.querySelectorAll('.btn-nueva-incidencia').forEach(btn => {
   btn.addEventListener('click', (e) => {
     const view = e.target.closest('.role-view');
-    view.querySelector('.create-incidencia-view').classList.remove('hidden'); // Muestra el formulario
-    e.target.style.display = 'none'; // Oculta el botón de "Crear" para no duplicar
+    view.querySelector('.create-incidencia-view').classList.remove('hidden');
+    e.target.style.display = 'none';
     const form = view.querySelector('.incidencia-form');
     form.reset();
     view.querySelector('.inc-msg').textContent = '';
   });
 });
 
-// Evento para cancelar/ocultar el formulario de creación de incidencia
+/* 
+   Cancelación/Cierre del formulario de incidencia 
+*/
 document.querySelectorAll('.inc-cancel').forEach(btn => {
   btn.addEventListener('click', (e) => {
     const view = e.target.closest('.role-view');
-    view.querySelector('.create-incidencia-view').classList.add('hidden'); // Oculta formulario
-    view.querySelector('.btn-nueva-incidencia').style.display = 'block'; // Muestra de nuevo el botón "Crear"
+    view.querySelector('.create-incidencia-view').classList.add('hidden');
+    view.querySelector('.btn-nueva-incidencia').style.display = 'block';
   });
 });
 
-// Función para enviar la nueva incidencia al servidor
+/* 
+   Envío de nueva incidencia 
+*/
 document.querySelectorAll('.incidencia-form').forEach(form => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -876,25 +1006,29 @@ document.querySelectorAll('.incidencia-form').forEach(form => {
     const msgDiv = view.querySelector('.inc-msg');
     msgDiv.textContent = '';
     try {
-      await crearIncidencia(data); // Petición de creación
-      view.querySelector('.create-incidencia-view').classList.add('hidden'); // Oculta formulario
-      view.querySelector('.btn-nueva-incidencia').style.display = 'block'; // Muestra botón "Crear"
+      await crearIncidencia(data);
+      view.querySelector('.create-incidencia-view').classList.add('hidden');
+      view.querySelector('.btn-nueva-incidencia').style.display = 'block';
 
-      if (state.usuario.rol === 'CLIENTE') { // Si es cliente, refresca su lista personal
+      if (state.usuario.rol === 'CLIENTE') {
         fetchIncidencias(`${API}/incidencias/cliente/${state.usuario.clienteId}`, '#incidencias-list', '#historial-incidencias-list');
       }
     } catch (err) {
-      msgDiv.textContent = err.message; // Muestra error si falla
+      msgDiv.textContent = err.message;
     }
   });
 });
 
-// Eventos para el formulario de gestión de usuarios (Admin)
+/* 
+   Filtrado interactivo: Actualiza la tabla de usuarios en tiempo real al escribir en el buscador 
+*/
 q('#search-usuarios').addEventListener('input', (e) => {
   renderUsuarios(e.target.value);
 });
 
-// Evento para actualizar visualmente el rol según el email en el formulario
+/* 
+   Auto-detección del rol según el dominio del email 
+*/
 q('#user-email').addEventListener('input', (e) => {
   const email = e.target.value.trim().toLowerCase();
   const rolSelect = q('#user-rol');
@@ -904,12 +1038,22 @@ q('#user-email').addEventListener('input', (e) => {
     rolSelect.value = 'CLIENTE';
   }
 });
+/* 
+   Apertura del formulario para registrar un nuevo usuario desde el panel de administrador 
+*/
 q('#btn-nuevo-usuario').addEventListener('click', () => abrirFormUsuario());
+
+/* 
+   Cierre y cancelación del formulario de gestión de usuarios 
+*/
 q('#user-cancel').addEventListener('click', () => {
   hide('#usuario-form-view');
   show('#btn-nuevo-usuario');
 });
 
+/* 
+   Procesamiento del formulario de usuarios: Envía los datos para crear o actualizar un usuario 
+*/
 q('#usuario-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!validateForm(e.target)) return;
@@ -951,7 +1095,9 @@ q('#usuario-form').addEventListener('submit', async (e) => {
   }
 });
 
-// Restaurar sesión al cargar la página
+/* 
+   Persistencia de sesión: Carga de usuario al iniciar 
+*/
 document.addEventListener('DOMContentLoaded', () => {
   const savedUser = localStorage.getItem('tfg_usuario');
   if (savedUser) {

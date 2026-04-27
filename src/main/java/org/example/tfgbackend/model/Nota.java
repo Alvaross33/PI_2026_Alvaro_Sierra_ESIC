@@ -1,27 +1,27 @@
-package org.example.tfgbackend.model; // Paquete de modelos de datos
+package org.example.tfgbackend.model;
 
-import jakarta.persistence.*; // Uso de JPA para persistir objetos
-import lombok.*; // Uso de Lombok para simplificar el código
-import java.time.LocalDateTime; // Uso de fechas y horas locales
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
 
-@Entity // Clase mapeada a una tabla de base de datos
-@Table(name = "notas") // Nombre físico de la tabla
-@Getter // Autogenerar Getters
-@Setter // Autogenerar Setters
-@NoArgsConstructor // Constructor sin parámetros
-@AllArgsConstructor // Constructor completo
-@Builder // Soporte para patrón Builder
-public class Nota { // Representa un comentario o nota en una incidencia
-    @Id // Clave primaria única
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Valor auto-incremental
-    private Long notaId; // ID único de la nota
+@Entity
+@Table(name = "notas")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Nota {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long notaId;
 
-    @ManyToOne // Varias notas pertenecen a una sola incidencia
-    @JoinColumn(name = "incidencia_id", nullable = false) // Relación obligatoria
-    private Incidencia incidencia; // Referencia a la incidencia padre
+    @ManyToOne
+    @JoinColumn(name = "incidencia_id", nullable = false)
+    private Incidencia incidencia;
 
-    private String autor; // Rol del autor de la nota (CLIENTE o EMPLEADO)
-    private String nombreAutor; // Nombre completo de quien escribió la nota
-    private String contenido; // El texto del comentario
-    private LocalDateTime fechaCreacion; // Fecha y hora del registro de la nota
+    private String autor;
+    private String nombreAutor;
+    private String contenido;
+    private LocalDateTime fechaCreacion;
 }

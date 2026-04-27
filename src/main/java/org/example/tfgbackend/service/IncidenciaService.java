@@ -1,17 +1,17 @@
-package org.example.tfgbackend.service; // Capa de servicios
+package org.example.tfgbackend.service;
 
-import org.example.tfgbackend.model.Incidencia; // Entidad Incidencia
-import org.example.tfgbackend.repository.IncidenciaRepository; // Repositorio Incidencia
-import org.springframework.beans.factory.annotation.Autowired; // Inyección de dependencias
-import org.springframework.stereotype.Service; // Anotación de lógica de negocio
+import org.example.tfgbackend.model.Incidencia;
+import org.example.tfgbackend.repository.IncidenciaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.List; // Manejo de listas
-import java.util.Optional; // Manejo de valores opcionales
+import java.util.List;
+import java.util.Optional;
 
-@Service // Clase que define las operaciones de negocio para Incidencias
-public class IncidenciaService { // Implementación del servicio
+@Service
+public class IncidenciaService {
 
-    @Autowired // Spring conecta automáticamente el repositorio
+    @Autowired
     private IncidenciaRepository incidenciaRepository;
 
     public List<Incidencia> findAll() { // Retorna todas las incidencias registradas

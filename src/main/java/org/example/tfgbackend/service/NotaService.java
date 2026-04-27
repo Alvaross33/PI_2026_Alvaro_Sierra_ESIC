@@ -1,16 +1,16 @@
-package org.example.tfgbackend.service; // Capa de lógica de negocio
+package org.example.tfgbackend.service;
 
-import org.example.tfgbackend.model.Nota; // Entidad Nota
-import org.example.tfgbackend.repository.NotaRepository; // Repositorio de notas
-import org.springframework.beans.factory.annotation.Autowired; // Inyección de dependencias
-import org.springframework.stereotype.Service; // Anotación de servicio de Spring
+import org.example.tfgbackend.model.Nota;
+import org.example.tfgbackend.repository.NotaRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List; // Uso de listas
 
-@Service // Indica que esta clase es un servicio gestionado por Spring
-public class NotaService { // Clase que gestiona las notas de las incidencias
+@Service
+public class NotaService {
 
-    @Autowired // Inyección automática del repositorio
+    @Autowired
     private NotaRepository notaRepository;
 
     public List<Nota> findByIncidenciaId(Long incidenciaId) { // Recupera notas de una incidencia específica

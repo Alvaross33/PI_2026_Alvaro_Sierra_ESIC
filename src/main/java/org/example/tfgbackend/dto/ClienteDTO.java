@@ -1,11 +1,11 @@
-package org.example.tfgbackend.dto; // Paquete para objetos de transferencia de datos (DTO)
+package org.example.tfgbackend.dto;
 
-import lombok.*; // Lombok para simplificar el código
-import org.example.tfgbackend.model.Cliente; // Importación de la entidad Cliente
+import lombok.*;
+import org.example.tfgbackend.model.Cliente;
 import org.example.tfgbackend.model.Empleado;
-import org.example.tfgbackend.model.Rol; // Importación del enumerado Rol
+import org.example.tfgbackend.model.Rol;
 
-import java.time.LocalDateTime; // Manejo de fechas y horas
+import java.time.LocalDateTime;
 
 import org.example.tfgbackend.service.ClienteService;
 import org.springframework.http.ResponseEntity;

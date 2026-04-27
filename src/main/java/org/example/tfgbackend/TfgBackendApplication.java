@@ -1,16 +1,16 @@
-package org.example.tfgbackend; // Paquete raíz de la aplicación
+package org.example.tfgbackend;
 
-import org.example.tfgbackend.model.Cliente; // Importación de la entidad Cliente
+
 import org.example.tfgbackend.model.Empleado;
-import org.example.tfgbackend.model.Rol; // Importación de los roles
-import org.example.tfgbackend.repository.ClienteRepository; // Repositorio para inicializar datos
+import org.example.tfgbackend.model.Rol;
+import org.example.tfgbackend.repository.ClienteRepository;
 import org.example.tfgbackend.repository.EmpleadoRepository;
-import org.springframework.boot.CommandLineRunner; // Interfaz para ejecutar código al inicio
-import org.springframework.boot.SpringApplication; // Clase principal para lanzar Spring
-import org.springframework.boot.autoconfigure.SpringBootApplication; // Anotación de aplicación Spring Boot
-import org.springframework.context.annotation.Bean; // Indica que un método devuelve un bean de Spring
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
-import java.time.LocalDateTime; // Manejo de fechas
+
 
 @SpringBootApplication
 public class TfgBackendApplication {

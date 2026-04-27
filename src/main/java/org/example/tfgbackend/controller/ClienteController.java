@@ -1,27 +1,26 @@
-package org.example.tfgbackend.controller; // Paquete de controladores de la API
+package org.example.tfgbackend.controller;
 
-import org.example.tfgbackend.dto.ClienteCreateDTO; // DTO para creación de clientes
-import org.example.tfgbackend.dto.ClienteDTO; // DTO para salida de clientes
-import org.example.tfgbackend.dto.ClienteUpdateDTO; // DTO para actualización de clientes
-import org.example.tfgbackend.dto.LoginRequestDTO; // DTO para la petición de login
-import org.example.tfgbackend.model.Cliente;
+import org.example.tfgbackend.dto.ClienteCreateDTO;
+import org.example.tfgbackend.dto.ClienteDTO;
+import org.example.tfgbackend.dto.ClienteUpdateDTO;
+import org.example.tfgbackend.dto.LoginRequestDTO;
 import org.example.tfgbackend.model.Empleado;
 import org.example.tfgbackend.model.Rol;
-import org.example.tfgbackend.service.ClienteService; // Servicio de Clientes
+import org.example.tfgbackend.service.ClienteService;
 import org.example.tfgbackend.service.EmpleadoService;
 import org.example.tfgbackend.service.IncidenciaService;
-import org.springframework.beans.factory.annotation.Autowired; // Inyección de dependencias
-import org.springframework.http.ResponseEntity; // Respuesta HTTP genérica
-import org.springframework.web.bind.annotation.*; // Anotaciones web de Spring
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List; // Manejo de listas
-import java.util.stream.Collectors; // Procesamiento de colecciones
+import java.util.List;
+import java.util.stream.Collectors;
 
-@RestController // Indica que esta clase es un controlador REST
-@RequestMapping("/api/clientes") // Ruta base para todos los endpoints de clientes
-public class ClienteController { // Controlador para gestionar clientes
+@RestController
+@RequestMapping("/api/clientes")
+public class ClienteController {
 
-    @Autowired // Inyecta el servicio de clientes
+    @Autowired
     private ClienteService clienteService;
 
     @Autowired
@@ -32,17 +31,17 @@ public class ClienteController { // Controlador para gestionar clientes
 
     @GetMapping // Endpoint GET para listar todos los clientes
     public List<ClienteDTO> getAll() {
-        return clienteService.findAll().stream() // Obtiene entidades
-                .map(ClienteDTO::fromEntity) // Convierte a DTO
-                .collect(Collectors.toList()); // Retorna lista
+        return clienteService.findAll().stream()
+                .map(ClienteDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}") // Endpoint GET para buscar un cliente por ID
     public ResponseEntity<ClienteDTO> getById(@PathVariable Long id) {
-        return clienteService.findById(id) // Busca entidad
-                .map(ClienteDTO::fromEntity) // Convierte a DTO si existe
-                .map(ResponseEntity::ok) // Retorna 200 OK
-                .orElse(ResponseEntity.notFound().build()); // Retorna 404 si no existe
+        return clienteService.findById(id)
+                .map(ClienteDTO::fromEntity)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping // Endpoint POST para registrar un nuevo cliente
@@ -69,7 +68,7 @@ public class ClienteController { // Controlador para gestionar clientes
                             .build();
                     empleadoService.save(e);
                     
-                    // IMPORTANTE: Borrar de la tabla clientes para cumplir la regla de exclusividad
+
                     clienteService.deleteById(c.getClienteId());
                 });
                 
@@ -91,8 +90,7 @@ public class ClienteController { // Controlador para gestionar clientes
         if (clienteDetailsDTO.getCorreo() != null) {
             empleadoService.findByCorreoIgnoreCase(clienteDetailsDTO.getCorreo()).ifPresent(e -> {
                 if (!e.getEmpleadoId().equals(id)) {
-                    // Si existe un empleado con ese correo y no es el mismo ID
-                    // Pero en este sistema el ID es compartido o se intenta compartir
+
                 }
             });
         }
@@ -113,7 +111,7 @@ public class ClienteController { // Controlador para gestionar clientes
                             .build();
                     empleadoService.save(e);
                     
-                    // Borrar de clientes
+
                     clienteService.deleteById(c.getClienteId());
                 }
             });

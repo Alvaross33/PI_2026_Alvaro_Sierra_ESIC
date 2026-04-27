@@ -1,8 +1,8 @@
-package org.example.tfgbackend.model; // Paquete de modelos de datos
+package org.example.tfgbackend.model;
 
-import jakarta.persistence.*; // Persistencia de datos JPA
-import lombok.*; // Utilidades Lombok
-import java.time.LocalDateTime; // Manejo de tiempos locales
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "incidencias")

@@ -1,9 +1,9 @@
-package org.example.tfgbackend.model; // Paquete de modelos de datos
+package org.example.tfgbackend.model;
 
-import jakarta.persistence.*; // Importación de anotaciones JPA para persistencia
-import lombok.*; // Importación de Lombok para reducir código repetitivo
-import java.time.LocalDateTime; // Importación para manejar fechas y horas
-import java.util.List; // Importación para manejar listas de objetos
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "clientes")

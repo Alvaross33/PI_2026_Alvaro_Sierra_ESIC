@@ -1,12 +1,11 @@
-package org.example.tfgbackend.service; // Paquete de lógica de negocio
+package org.example.tfgbackend.service;
 
-import org.example.tfgbackend.model.Cliente; // Importación del modelo Cliente
-import org.example.tfgbackend.repository.ClienteRepository; // Repositorio de Clientes
-import org.springframework.beans.factory.annotation.Autowired; // Para inyección de dependencias
-import org.springframework.stereotype.Service; // Define la clase como un Servicio de Spring
-
-import java.util.List; // Uso de colecciones de Java
-import java.util.Optional; // Manejo de valores que pueden ser nulos
+import org.example.tfgbackend.model.Cliente;
+import org.example.tfgbackend.repository.ClienteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ClienteService {
