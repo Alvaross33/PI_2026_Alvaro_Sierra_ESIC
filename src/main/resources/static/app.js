@@ -1,40 +1,24 @@
-
 const API = '/api';
-
 const q = (s) => document.querySelector(s);
 const show = (id) => q(id).classList.remove('hidden');
 const hide = (id) => q(id).classList.add('hidden');
-
-/* 
-   Variables de estado global de la aplicación 
-*/
 const state = {
   usuario: null,
   incidenciaActiva: null,
   notasInterval: null,
   usuarios: []
 };
-
-/* 
-   Funciones de utilidad y notificaciones 
-*/
 function showNotification(message, duration = 3000) {
   const container = q('#custom-alert-container');
   container.textContent = message;
   container.classList.remove('hidden');
-  
   setTimeout(() => {
     container.classList.add('hidden');
   }, duration);
 }
-
-/* 
-   Validación de formularios 
-*/
 function validateForm(form) {
   const inputs = form.querySelectorAll('[required]');
   let isValid = true;
-  
   inputs.forEach(input => {
     if (!input.value.trim()) {
       isValid = false;
@@ -42,17 +26,11 @@ function validateForm(form) {
       setTimeout(() => { input.style.borderColor = ''; }, 3000);
     }
   });
-  
   if (!isValid) {
     showNotification('Por favor, rellena todos los campos obligatorios');
   }
-  
   return isValid;
 }
-
-/* 
-   Autenticación de usuario: Verifica credenciales contra el servidor 
-*/
 async function login(email, pass) {
   const res = await fetch(`${API}/clientes/login`, {
     method: 'POST',
@@ -67,49 +45,28 @@ async function login(email, pass) {
   if (res.status === 404 || res.status === 401) return null;
   throw new Error('Error en el servidor');
 }
-
-/* 
-   Atender incidencia: Asigna el empleado actual a la incidencia 
-*/
 async function atenderIncidencia(incidenciaId, silencioso = false) {
   try {
     const res = await fetch(`${API}/incidencias/${incidenciaId}`);
     if (!res.ok) throw new Error('No se pudo obtener la incidencia');
     const inc = await res.json();
-
     inc.empleadoId = state.usuario.clienteId;
     inc.estado = 'EN_PROCESO';
-
     const putRes = await fetch(`${API}/incidencias/${incidenciaId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(inc)
     });
-
     if (putRes.ok) {
       const updatedInc = await putRes.json();
-      
-      /*
-         Actualizamos el DOM directamente si la incidencia está visible
-      */
       if (state.incidenciaActiva && state.incidenciaActiva.incidenciaId === updatedInc.incidenciaId) {
         state.incidenciaActiva = updatedInc;
       }
-      
       const liElement = document.querySelector(`li[data-id="${incidenciaId}"]`);
       if (liElement) {
-        /* 
-           Actualizar datos y elementos visuales de la incidencia 
-        */
         liElement._incData = updatedInc;
-        
-        // Actualizar etiqueta de estado
         const estadoTag = liElement.querySelector('.estado-tag');
         if (estadoTag) estadoTag.textContent = updatedInc.estado;
-
-        /* 
-           Cambio dinámico del botón de acción 
-        */
         const btnAtender = liElement.querySelector('.btn-atender-incidencia');
         if (btnAtender) {
           const newBtn = document.createElement('button');
@@ -122,31 +79,20 @@ async function atenderIncidencia(incidenciaId, silencioso = false) {
           });
           btnAtender.replaceWith(newBtn);
         }
-
-        /* 
-           Si el chat está abierto, habilitamos el formulario 
-        */
         const statusMsg = liElement.querySelector('.chat-status-msg');
         const form = liElement.querySelector('.chat-form');
         if (statusMsg && form && updatedInc.empleadoId) {
           statusMsg.classList.add('hidden');
           form.classList.remove('hidden');
         }
-
         if (!silencioso) {
           showNotification('Incidencia atendida correctamente');
-          /* 
-             Abrir notas si no están visibles 
-          */
           const existingNotes = liElement.querySelector('.notes-container');
           if (!existingNotes) {
             abrirNotas(updatedInc, liElement);
           }
         }
       } else {
-        /* 
-           Fallback: recarga completa si el elemento no se encuentra 
-        */
         refreshIncidencias();
         if (!silencioso) {
           showNotification('Incidencia atendida correctamente');
@@ -164,24 +110,17 @@ async function atenderIncidencia(incidenciaId, silencioso = false) {
     if (!silencioso) showNotification(err.message);
   }
 }
-
-/* 
-   Actualización de prioridad: Permite modificar el nivel de urgencia de una incidencia 
-*/
 async function cambiarPrioridad(incidenciaId, nuevaPrioridad) {
   try {
     const res = await fetch(`${API}/incidencias/${incidenciaId}`);
     if (!res.ok) throw new Error('No se pudo obtener la incidencia');
     const inc = await res.json();
-
     inc.prioridad = nuevaPrioridad;
-
     const putRes = await fetch(`${API}/incidencias/${incidenciaId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(inc)
     });
-
     if (putRes.ok) {
       onLogged(state.usuario);
     } else {
@@ -192,26 +131,18 @@ async function cambiarPrioridad(incidenciaId, nuevaPrioridad) {
     showNotification(err.message);
   }
 }
-
-/* 
-   Cerrar incidencia: Finaliza el proceso y mueve al historial 
-*/
 async function cerrarIncidencia(incidenciaId) {
   if (!confirm('¿Estás seguro de que deseas cerrar esta incidencia? Se moverá al historial.')) return;
-
   try {
     const res = await fetch(`${API}/incidencias/${incidenciaId}`);
     if (!res.ok) throw new Error('No se pudo obtener la incidencia');
     const inc = await res.json();
-
     inc.estado = 'CERRADA';
-
     const putRes = await fetch(`${API}/incidencias/${incidenciaId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(inc)
     });
-
     if (putRes.ok) {
       showNotification('Incidencia cerrada y movida al historial');
       onLogged(state.usuario);
@@ -224,14 +155,6 @@ async function cerrarIncidencia(incidenciaId) {
     showNotification(err.message);
   }
 }
-
-/* 
-   GESTIÓN DE USUARIOS (ADMINISTRACIÓN) 
-*/
-
-/* 
-   Obtención de lista de usuarios: Recupera todos los clientes/empleados para el panel de administración 
-*/
 async function fetchUsuarios() {
   try {
     const res = await fetch(`${API}/clientes`);
@@ -242,20 +165,14 @@ async function fetchUsuarios() {
     console.error(err);
   }
 }
-
-/* 
-   Renderizado de la tabla de usuarios: Muestra la lista y aplica filtros de búsqueda si los hay 
-*/
 function renderUsuarios(filtro = '') {
   const tbody = q('#usuarios-body');
   if (!tbody) return;
   tbody.innerHTML = '';
-
   const usuariosFiltrados = state.usuarios.filter(u => {
     const nombreCompleto = `${u.nombre} ${u.apellido}`.toLowerCase();
     return nombreCompleto.includes(filtro.toLowerCase()) || u.correo.toLowerCase().includes(filtro.toLowerCase());
   });
-
   usuariosFiltrados.forEach(u => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -276,10 +193,6 @@ function renderUsuarios(filtro = '') {
     `;
     tbody.appendChild(tr);
   });
-
-  /* 
-     Eventos para acciones sobre usuarios 
-  */
   tbody.querySelectorAll('.btn-edit-user').forEach(btn => {
     btn.addEventListener('click', () => abrirFormUsuario(btn.dataset.id));
   });
@@ -287,23 +200,17 @@ function renderUsuarios(filtro = '') {
     btn.addEventListener('click', () => toggleUsuarioActivo(btn.dataset.id));
   });
 }
-
-/* 
-   Apertura del formulario de usuarios: Prepara la vista para crear o editar (si recibe un ID) un usuario 
-*/
 function abrirFormUsuario(id = null) {
   const formView = q('#usuario-form-view');
   const title = q('#usuario-form-title');
   const form = q('#usuario-form');
   const passHelp = q('#pass-help');
   const labelPass = q('#label-user-pass');
-  
   form.reset();
   q('#user-id').value = id || '';
   q('#user-msg').textContent = '';
   show('#usuario-form-view');
   hide('#btn-nuevo-usuario');
-
   if (id) {
     title.textContent = 'Editar Usuario';
     const u = state.usuarios.find(user => user.clienteId == id);
@@ -324,23 +231,13 @@ function abrirFormUsuario(id = null) {
     q('#user-pass').required = true;
   }
 }
-
-/* 
-   Activación/Desactivación de usuarios: Controla el acceso de los clientes o empleados al sistema 
-*/
 async function toggleUsuarioActivo(id) {
   const u = state.usuarios.find(user => user.clienteId == id);
   if (!u) return;
-  
-  /* 
-     Confirmación de seguridad para activar/desactivar 
-  */
   const confirmMsg = u.activo 
     ? `¿Estás seguro de que deseas desactivar a ${u.nombre}? No podrá iniciar sesión.`
     : `¿Deseas activar a ${u.nombre}?`;
-    
   if (!confirm(confirmMsg)) return;
-
   const data = { ...u, activo: !u.activo };
   try {
     const res = await fetch(`${API}/clientes/${id}`, {
@@ -358,48 +255,25 @@ async function toggleUsuarioActivo(id) {
     console.error(err);
   }
 }
-
-/* 
-   Gestión de notas: Apertura, cierre y visualización embebida 
-*/
 async function abrirNotas(incidencia, elemento = null) {
   if (!elemento) return;
-
-  /* 
-     Alternar visibilidad si ya existe el contenedor 
-  */
   const existingNotes = elemento.querySelector('.notes-container');
   if (existingNotes) {
     cerrarNotasActuales();
     return;
   }
-
-  /* 
-     Cierre de otras notas abiertas para mantener orden 
-  */
   cerrarNotasActuales();
-
   state.incidenciaActiva = incidencia;
-
-  /* 
-     Clonación de la plantilla de notas 
-  */
   const template = q('#notes-template').firstElementChild.cloneNode(true);
-
   const form = template.querySelector('.chat-form');
   const input = template.querySelector('.chat-input');
   const messagesContainer = template.querySelector('.chat-messages');
   const closeBtn = template.querySelector('.btn-cerrar-notas');
   const statusMsg = template.querySelector('.chat-status-msg');
-
-  /* 
-     Eventos de cierre y envío de notas 
-  */
   closeBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     cerrarNotasActuales();
   });
-
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     const contenido = input.value.trim();
@@ -407,10 +281,6 @@ async function abrirNotas(incidencia, elemento = null) {
       añadirNota(contenido, messagesContainer, input);
     }
   });
-
-  /* 
-     Control de permisos para añadir notas según el rol 
-  */
   if (state.usuario.rol === 'CLIENTE') {
     statusMsg.classList.add('hidden');
     form.classList.remove('hidden');
@@ -424,30 +294,16 @@ async function abrirNotas(incidencia, elemento = null) {
       form.classList.add('hidden');
     }
   }
-
-  /* 
-     Inyección en el DOM e inicio del polling 
-  */
   elemento._incData = incidencia;
   elemento.appendChild(template);
-
   cargarNotas(messagesContainer);
-
   if (state.notasInterval) clearInterval(state.notasInterval);
   state.notasInterval = setInterval(() => cargarNotas(messagesContainer), 10000);
-
   elemento.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-
-/* 
-   Cierre y limpieza de contenedores de notas 
-*/
 function cerrarNotasActuales() {
   const allContainers = document.querySelectorAll('.notes-container');
   allContainers.forEach(c => {
-    /* 
-       Evitar eliminar el template original 
-    */
     if (!c.closest('#notes-template')) {
       c.remove();
     }
@@ -455,44 +311,30 @@ function cerrarNotasActuales() {
   state.incidenciaActiva = null;
   if (state.notasInterval) clearInterval(state.notasInterval);
 }
-
-/* 
-   Carga de notas: Obtiene las notas de la incidencia activa 
-*/
 async function cargarNotas(container = null) {
   if (!state.incidenciaActiva) return;
-
-  /* 
-     Localización del contenedor si no se proporciona 
-  */
   if (!container) {
     container = document.querySelector(`li[data-id="${state.incidenciaActiva.incidenciaId}"] .chat-messages, tr[data-id="${state.incidenciaActiva.incidenciaId}"] .chat-messages`);
   }
   if (!container) return;
-
   try {
     const res = await fetch(`${API}/notas/incidencia/${state.incidenciaActiva.incidenciaId}`);
     if (!res.ok) return;
     const notas = await res.json();
-
     const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
-
     container.innerHTML = '';
     if (notas.length === 0) {
       container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px;">No hay notas en esta incidencia.</div>';
     }
-
     notas.forEach(nota => {
       const card = document.createElement('div');
       card.className = 'nota-card';
-
       const isMe = (nota.autor === state.usuario.rol);
       if (isMe) {
         card.style.borderLeft = '4px solid var(--primary)';
       } else {
         card.style.borderLeft = '4px solid #94a3b8';
       }
-
       card.innerHTML = `
         <div class="nota-header">
           <span class="nota-autor">${nota.nombreAutor || nota.autor}</span>
@@ -502,10 +344,6 @@ async function cargarNotas(container = null) {
       `;
       container.appendChild(card);
     });
-
-    /* 
-       Auto-scroll si el usuario está al final del chat 
-    */
     if (isAtBottom) {
       container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
     }
@@ -513,13 +351,8 @@ async function cargarNotas(container = null) {
     console.error('Error cargando notas:', err);
   }
 }
-
-/* 
-   Añadir nota: Envía una nueva nota y gestiona la auto-atención 
-*/
 async function añadirNota(contenido, container, input) {
   if (!state.incidenciaActiva) return;
-
   const data = {
     incidenciaId: state.incidenciaActiva.incidenciaId,
     autor: state.usuario.rol,
@@ -527,7 +360,6 @@ async function añadirNota(contenido, container, input) {
     contenido: contenido,
     fechaCreacion: new Date().toISOString()
   };
-
   try {
     const res = await fetch(`${API}/notas`, {
       method: 'POST',
@@ -537,10 +369,6 @@ async function añadirNota(contenido, container, input) {
     if (res.ok) {
       input.value = '';
       cargarNotas(container);
-      
-      /* 
-         Auto-atención por parte de empleados/admin al responder 
-      */
       if ((state.usuario.rol === 'EMPLEADO' || state.usuario.rol === 'ADMINISTRADOR') && !state.incidenciaActiva.empleadoId) {
         atenderIncidencia(state.incidenciaActiva.incidenciaId, true);
       }
@@ -549,29 +377,19 @@ async function añadirNota(contenido, container, input) {
     console.error('Error añadiendo nota:', err);
   }
 }
-
-/* 
-   Registro de clientes 
-*/
 async function registrarCliente(data) {
   const res = await fetch(`${API}/clientes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-
   if (res.status === 409) {
     const errorMsg = await res.text();
     throw new Error(errorMsg);
   }
-
   if (!res.ok) throw new Error('No se pudo registrar el cliente');
   return res.json();
 }
-
-/* 
-   Creación de incidencias 
-*/
 async function crearIncidencia(data) {
   const res = await fetch(`${API}/incidencias`, {
     method: 'POST',
@@ -581,71 +399,45 @@ async function crearIncidencia(data) {
   if (!res.ok) throw new Error('No se pudo crear la incidencia');
   return res.json();
 }
-
-/* 
-   Obtención de incidencias y filtrado según el estado y rol 
-*/
 async function fetchIncidencias(url, listId, historyBodyId) {
   console.log(`[DEBUG] Fetching incidencias from: ${url}`);
   const ul = q(listId);
   const tbodyHist = historyBodyId ? q(historyBodyId) : null;
-
   if (!ul) {
     console.error(`[DEBUG] Container ${listId} not found`);
     return;
   }
-
   ul.innerHTML = '<li>Cargando incidencias...</li>';
   if (tbodyHist) tbodyHist.innerHTML = '<tr><td colspan="5">Cargando historial...</td></tr>';
-
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}: Error al cargar incidencias`);
     let data = await res.json();
     console.log(`[DEBUG] Data received:`, data);
-
     const allIncidencias = Array.isArray(data) ? data : (data.incidencias || []);
-
     let activas = allIncidencias.filter(i => i.estado !== 'CERRADA');
     const cerradas = allIncidencias.filter(i => i.estado === 'CERRADA');
-
-    /* 
-       Filtro específico para empleados 
-    */
     if (state.usuario && state.usuario.rol === 'EMPLEADO') {
       activas = activas.filter(i => !i.empleadoId || i.empleadoId === state.usuario.clienteId);
     }
-
     renderListaIncidencias(activas, ul);
     if (tbodyHist) renderHistorialTabla(cerradas, tbodyHist);
-
   } catch (error) {
     console.error('[DEBUG] Fetch error:', error);
     ul.innerHTML = `<li>Error: ${error.message}</li>`;
   }
 }
-
-
-/* 
-   Renderizado de la lista de incidencias activas 
-*/
 function renderListaIncidencias(incidencias, container) {
   container.innerHTML = '';
   if (incidencias.length === 0) {
     container.innerHTML = '<li>No hay incidencias.</li>';
     return;
   }
-
   incidencias.forEach(inc => {
     const li = document.createElement('li');
     li.setAttribute('data-id', inc.incidenciaId);
-    /* 
-       Almacenamiento de datos directamente en el nodo 
-    */
     li._incData = inc;
-
     let botones = `<button class="btn-ver-notas" style="background: var(--bg); color: var(--primary); border: 1px solid var(--primary); margin-right: 8px;">Ver Notas</button>`;
-
     if (state.usuario.rol === 'CLIENTE') {
       botones += `<button class="btn-cerrar-incidencia" style="background: var(--error-bg); color: var(--error-text); border: 1px solid var(--error-text);">Cerrar Incidencia</button>`;
     } else if (state.usuario.rol === 'EMPLEADO' || state.usuario.rol === 'ADMINISTRADOR') {
@@ -655,10 +447,8 @@ function renderListaIncidencias(incidencias, container) {
         botones += `<button class="btn-cerrar-incidencia" style="background: var(--error-bg); color: var(--error-text); border: 1px solid var(--error-text);">Finalizar Incidencia</button>`;
       }
     }
-
     const pClass = `badge badge-${(inc.prioridad || 'MEDIA').toLowerCase()}`;
     let prioridadHtml = `<span class="${pClass}">${inc.prioridad}</span>`;
-
     li.innerHTML = `
       <div class="inc-header">
         <div>
@@ -676,15 +466,10 @@ function renderListaIncidencias(incidencias, container) {
         ${botones}
       </div>
     `;
-
-    /* 
-       Asignación segura de eventos 
-    */
     li.querySelector('.btn-ver-notas').addEventListener('click', (e) => {
       e.stopPropagation();
       abrirNotas(li._incData, li);
     });
-
     const btnCerrar = li.querySelector('.btn-cerrar-incidencia');
     if (btnCerrar) {
       btnCerrar.addEventListener('click', (e) => {
@@ -692,7 +477,6 @@ function renderListaIncidencias(incidencias, container) {
         cerrarIncidencia(inc.incidenciaId);
       });
     }
-
     const btnAtender = li.querySelector('.btn-atender-incidencia');
     if (btnAtender) {
       btnAtender.addEventListener('click', (e) => {
@@ -700,30 +484,20 @@ function renderListaIncidencias(incidencias, container) {
         atenderIncidencia(inc.incidenciaId);
       });
     }
-
     container.appendChild(li);
   });
 }
-
-/* 
-   Renderizado del historial de incidencias (formato tabla) 
-*/
 function renderHistorialTabla(incidencias, tbody) {
   tbody.innerHTML = '';
   if (incidencias.length === 0) {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-muted);">No hay incidencias cerradas en el historial.</td></tr>';
     return;
   }
-
-  /* 
-     Creación de filas para la tabla de historial 
-  */
   incidencias.forEach(inc => {
     const tr = document.createElement('tr');
     tr.style.borderBottom = '1px solid #f3f4f6';
     tr.setAttribute('data-id', inc.incidenciaId);
     tr._incData = inc;
-
     tr.innerHTML = `
       <td style="padding: 10px;">${inc.titulo}</td>
       <td style="padding: 10px;">${inc.nombreCliente || 'Desconocido'}</td>
@@ -733,19 +507,13 @@ function renderHistorialTabla(incidencias, tbody) {
         <button class="btn-ver-notas" style="background: var(--bg); color: var(--primary); border: 1px solid var(--primary); padding: 4px 8px; font-size: 0.8rem;">Ver Notas</button>
       </td>
     `;
-
     tr.querySelector('.btn-ver-notas').addEventListener('click', (e) => {
       e.stopPropagation();
       abrirNotas(tr._incData, tr);
     });
-
     tbody.appendChild(tr);
   });
 }
-
-/* 
-   Carga de usuarios para administración 
-*/
 async function cargarUsuariosAdmin() {
   const tbody = q('#usuarios-body');
   tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
@@ -753,21 +521,15 @@ async function cargarUsuariosAdmin() {
     const res = await fetch(`${API}/clientes`);
     if (!res.ok) throw new Error('No se pudieron cargar los usuarios');
     const usuarios = await res.json();
-
     tbody.innerHTML = '';
     usuarios.forEach(user => {
       const tr = document.createElement('tr');
       tr.style.borderBottom = '1px solid #f3f4f6';
-
-      /* 
-         Lógica para acciones según el rol del usuario 
-      */
       const actions = user.rol === 'CLIENTE'
         ? `<button onclick="cambiarRol(${user.clienteId}, 'EMPLEADO')">Hacer Empleado</button>`
         : user.rol === 'EMPLEADO'
           ? `<button onclick="cambiarRol(${user.clienteId}, 'CLIENTE')">Hacer Cliente</button>`
           : '<em>Admin</em>';
-
       tr.innerHTML = `
         <td style="padding: 10px;">${user.nombre} ${user.apellido}</td>
         <td style="padding: 10px;">${user.correo}</td>
@@ -780,22 +542,16 @@ async function cargarUsuariosAdmin() {
     tbody.innerHTML = `<tr><td colspan="4">Error: ${error.message}</td></tr>`;
   }
 }
-
-/* 
-   Cambio de rol de usuario 
-*/
 async function cambiarRol(id, nuevoRol) {
   try {
     const userRes = await fetch(`${API}/clientes/${id}`);
     const user = await userRes.json();
     user.rol = nuevoRol;
-
     const res = await fetch(`${API}/clientes/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(user)
     });
-
     if (res.ok) {
       cargarUsuariosAdmin();
     } else {
@@ -806,10 +562,6 @@ async function cambiarRol(id, nuevoRol) {
     alert('Error de conexión');
   }
 }
-
-/* 
-   Refresco automático de listas según el rol 
-*/
 function refreshIncidencias() {
   if (!state.usuario) return;
   if (state.usuario.rol === 'ADMINISTRADOR') {
@@ -820,38 +572,21 @@ function refreshIncidencias() {
     fetchIncidencias(`${API}/incidencias/cliente/${state.usuario.clienteId}`, '#incidencias-list');
   }
 }
-
-/* 
-   Exposición de funciones al ámbito global 
-*/
 window.cambiarRol = cambiarRol;
 window.atenderIncidencia = atenderIncidencia;
 window.cerrarIncidencia = cerrarIncidencia;
 window.abrirNotas = abrirNotas;
 window.cerrarNotasActuales = cerrarNotasActuales;
 window.fetchIncidencias = fetchIncidencias;
-
-/* 
-   Inicialización tras el inicio de sesión exitoso 
-*/
 function onLogged(usuario) {
   state.usuario = usuario;
   localStorage.setItem('tfg_usuario', JSON.stringify(usuario));
   q('#welcome').textContent = `Bienvenido/a, ${usuario.nombre} ${usuario.apellido}`;
   q('#role-info').textContent = `Rol: ${usuario.rol}`;
-
   hide('#auth-view');
   hide('#register-view');
   show('#app-view');
-
-  /* 
-     Reset visual de vistas por rol 
-  */
   document.querySelectorAll('.role-view').forEach(v => v.classList.add('hidden'));
-
-  /* 
-     Carga de datos según el rol 
-  */
   if (usuario.rol === 'ADMINISTRADOR') {
     show('#admin-view');
     fetchUsuarios();
@@ -864,26 +599,17 @@ function onLogged(usuario) {
     fetchIncidencias(`${API}/incidencias/cliente/${usuario.clienteId}`, '#incidencias-list');
   }
 }
-
-/* 
-   Eventos de navegación entre vistas 
-*/
 q('#btn-to-register').addEventListener('click', () => {
   hide('#auth-view');
   show('#register-view');
   q('#login-msg').textContent = '';
 });
-
-/* 
-   Procesamiento del inicio de sesión 
-*/
 q('#login-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!validateForm(e.target)) return;
   const email = q('#login-email').value.trim();
   const pass = q('#login-pass').value.trim();
   q('#login-msg').textContent = '';
-
   try {
     const usuario = await login(email, pass);
     if (usuario) {
@@ -895,10 +621,6 @@ q('#login-form').addEventListener('submit', async (e) => {
     q('#login-msg').textContent = err.message;
   }
 });
-
-/* 
-   Procesamiento del registro 
-*/
 q('#register-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!validateForm(e.target)) return;
@@ -918,18 +640,10 @@ q('#register-form').addEventListener('submit', async (e) => {
     q('#reg-msg').textContent = err.message;
   }
 });
-
-/* 
-   Navegación: Vuelve al formulario de inicio de sesión desde la vista de registro 
-*/
 q('#reg-cancel').addEventListener('click', () => {
   hide('#register-view');
   show('#auth-view');
 });
-
-/* 
-   Cierre de sesión y limpieza de estado 
-*/
 q('#logout').addEventListener('click', () => {
   state.usuario = null;
   localStorage.removeItem('tfg_usuario');
@@ -938,17 +652,9 @@ q('#logout').addEventListener('click', () => {
   show('#auth-view');
   q('#login-form').reset();
   q('#register-form').reset();
-  /* 
-     Reset visual de formularios secundarios 
-  */
   document.querySelectorAll('.create-incidencia-view').forEach(v => v.classList.add('hidden'));
   document.querySelectorAll('.btn-nueva-incidencia').forEach(b => b.style.display = 'block');
 });
-
-
-/* 
-   Gestión de pestañas (Tabs) para Administrador 
-*/
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     cerrarNotasActuales();
@@ -958,10 +664,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     show(`#${btn.dataset.tab}`);
   });
 });
-
-/* 
-   Apertura del formulario de nueva incidencia 
-*/
 document.querySelectorAll('.btn-nueva-incidencia').forEach(btn => {
   btn.addEventListener('click', (e) => {
     const view = e.target.closest('.role-view');
@@ -972,10 +674,6 @@ document.querySelectorAll('.btn-nueva-incidencia').forEach(btn => {
     view.querySelector('.inc-msg').textContent = '';
   });
 });
-
-/* 
-   Cancelación/Cierre del formulario de incidencia 
-*/
 document.querySelectorAll('.inc-cancel').forEach(btn => {
   btn.addEventListener('click', (e) => {
     const view = e.target.closest('.role-view');
@@ -983,10 +681,6 @@ document.querySelectorAll('.inc-cancel').forEach(btn => {
     view.querySelector('.btn-nueva-incidencia').style.display = 'block';
   });
 });
-
-/* 
-   Envío de nueva incidencia 
-*/
 document.querySelectorAll('.incidencia-form').forEach(form => {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -1000,14 +694,12 @@ document.querySelectorAll('.incidencia-form').forEach(form => {
       estado: 'PENDIENTE',
       fechaCreacion: new Date().toISOString()
     };
-
     const msgDiv = view.querySelector('.inc-msg');
     msgDiv.textContent = '';
     try {
       await crearIncidencia(data);
       view.querySelector('.create-incidencia-view').classList.add('hidden');
       view.querySelector('.btn-nueva-incidencia').style.display = 'block';
-
       if (state.usuario.rol === 'CLIENTE') {
         fetchIncidencias(`${API}/incidencias/cliente/${state.usuario.clienteId}`, '#incidencias-list', '#historial-incidencias-list');
       }
@@ -1016,17 +708,9 @@ document.querySelectorAll('.incidencia-form').forEach(form => {
     }
   });
 });
-
-/* 
-   Filtrado interactivo: Actualiza la tabla de usuarios en tiempo real al escribir en el buscador 
-*/
 q('#search-usuarios').addEventListener('input', (e) => {
   renderUsuarios(e.target.value);
 });
-
-/* 
-   Auto-detección del rol según el dominio del email 
-*/
 q('#user-email').addEventListener('input', (e) => {
   const email = e.target.value.trim().toLowerCase();
   const rolSelect = q('#user-rol');
@@ -1036,29 +720,17 @@ q('#user-email').addEventListener('input', (e) => {
     rolSelect.value = 'CLIENTE';
   }
 });
-/* 
-   Apertura del formulario para registrar un nuevo usuario desde el panel de administrador 
-*/
 q('#btn-nuevo-usuario').addEventListener('click', () => abrirFormUsuario());
-
-/* 
-   Cierre y cancelación del formulario de gestión de usuarios 
-*/
 q('#user-cancel').addEventListener('click', () => {
   hide('#usuario-form-view');
   show('#btn-nuevo-usuario');
 });
-
-/* 
-   Procesamiento del formulario de usuarios: Envía los datos para crear o actualizar un usuario 
-*/
 q('#usuario-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!validateForm(e.target)) return;
   const id = q('#user-id').value;
   const msgDiv = q('#user-msg');
   msgDiv.textContent = '';
-
   const email = q('#user-email').value.trim();
   const data = {
     nombre: q('#user-nombre').value.trim(),
@@ -1066,20 +738,16 @@ q('#usuario-form').addEventListener('submit', async (e) => {
     correo: email,
     activo: q('#user-activo').value === 'true'
   };
-
   const pass = q('#user-pass').value.trim();
   if (pass) data.contrasena = pass;
-
   try {
     const url = id ? `${API}/clientes/${id}` : `${API}/clientes`;
     const method = id ? 'PUT' : 'POST';
-
     const res = await fetch(url, {
       method: method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-
     if (res.ok) {
       hide('#usuario-form-view');
       show('#btn-nuevo-usuario');
@@ -1092,10 +760,6 @@ q('#usuario-form').addEventListener('submit', async (e) => {
     msgDiv.textContent = 'Error de conexión';
   }
 });
-
-/* 
-   Persistencia de sesión: Carga de usuario al iniciar 
-*/
 document.addEventListener('DOMContentLoaded', () => {
   const savedUser = localStorage.getItem('tfg_usuario');
   if (savedUser) {

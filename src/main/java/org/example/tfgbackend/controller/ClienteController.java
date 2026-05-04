@@ -31,9 +31,13 @@ public class ClienteController {
 
     @GetMapping // Endpoint GET para listar todos los clientes
     public List<ClienteDTO> getAll() {
-        return clienteService.findAll().stream()
+        List<ClienteDTO> todos = clienteService.findAll().stream()
                 .map(ClienteDTO::fromEntity)
                 .collect(Collectors.toList());
+        todos.addAll(empleadoService.findAll().stream()
+                .map(e -> ClienteDTO.fromEmpleado(e, e.getRol()))
+                .collect(Collectors.toList()));
+        return todos;
     }
 
     @GetMapping("/{id}") // Endpoint GET para buscar un cliente por ID
