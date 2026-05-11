@@ -31,7 +31,9 @@ public class ClienteUpdateDTO {
         cliente.setNombre(this.nombre);
         cliente.setApellido(this.apellido);
         cliente.setCorreo(this.correo);
-        cliente.setContrasena(this.contrasena);
+        if (this.contrasena != null && !this.contrasena.trim().isEmpty()) {
+            cliente.setContrasena(this.contrasena);
+        }
         cliente.setFechaRegistro(this.fechaRegistro);
         cliente.setActivo(this.activo);
         

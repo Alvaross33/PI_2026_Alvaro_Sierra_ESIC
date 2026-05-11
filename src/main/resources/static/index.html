@@ -19,7 +19,12 @@
         <label>Email</label> 
         <input type="email" id="login-email" required /> 
         <label>Contraseña</label> 
-        <input type="password" id="login-pass" required /> 
+        <div style="position: relative; display: flex; align-items: center;">
+          <input type="password" id="login-pass" required style="width: 100%; box-sizing: border-box; padding-right: 40px;" /> 
+          <button type="button" class="toggle-password" style="position: absolute; right: 10px; background: none; border: none; cursor: pointer; padding: 0; color: #374151; display: flex; align-items: center; justify-content: center; height: 100%;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
         <button type="submit">Entrar</button> 
         <button type="button" id="btn-to-register">Crear cuenta</button> 
       </form> 
@@ -35,7 +40,12 @@
         <label>Email</label> 
         <input type="email" id="reg-email" required /> 
         <label>Contraseña</label> 
-        <input type="password" id="reg-pass" required /> 
+        <div style="position: relative; display: flex; align-items: center;">
+          <input type="password" id="reg-pass" required style="width: 100%; box-sizing: border-box; padding-right: 40px;" /> 
+          <button type="button" class="toggle-password" style="position: absolute; right: 10px; background: none; border: none; cursor: pointer; padding: 0; color: #374151; display: flex; align-items: center; justify-content: center; height: 100%;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
         <button type="submit">Crear cuenta</button> 
         <button type="button" id="reg-cancel">Cancelar</button> 
       </form> 
@@ -129,7 +139,12 @@
               <label>Email</label>
               <input type="email" id="user-email" required />
               <label id="label-user-pass">Contraseña</label>
-              <input type="password" id="user-pass" />
+              <div style="position: relative; display: flex; align-items: center;">
+                <input type="password" id="user-pass" style="width: 100%; box-sizing: border-box; padding-right: 40px;" />
+                <button type="button" class="toggle-password" style="position: absolute; right: 10px; background: none; border: none; cursor: pointer; padding: 0; color: #374151; display: flex; align-items: center; justify-content: center; height: 100%;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+              </div>
               <small id="pass-help" class="hidden">Dejar en blanco para no cambiar</small>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                 <div>

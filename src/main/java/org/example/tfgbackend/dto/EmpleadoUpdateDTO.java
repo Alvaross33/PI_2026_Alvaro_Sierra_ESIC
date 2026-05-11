@@ -24,7 +24,9 @@ public class EmpleadoUpdateDTO {
         if (this.nombre != null) empleado.setNombre(this.nombre);
         if (this.apellido != null) empleado.setApellido(this.apellido);
         if (this.correo != null) empleado.setCorreo(this.correo);
-        if (this.contrasena != null) empleado.setContrasena(this.contrasena);
+        if (this.contrasena != null && !this.contrasena.trim().isEmpty()) {
+            empleado.setContrasena(this.contrasena);
+        }
         if (this.responsabilidad != null) empleado.setResponsabilidad(this.responsabilidad);
         
         if (this.rol != null) {

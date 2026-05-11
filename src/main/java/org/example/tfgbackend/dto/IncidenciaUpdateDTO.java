@@ -30,29 +30,7 @@ public class IncidenciaUpdateDTO {
             clienteService.findById(this.clienteId).ifPresent(incidencia::setCliente);
         }
         if (this.empleadoId != null) {
-            clienteService.findById(this.empleadoId)
-                    .filter(c -> c.getRol() == Rol.EMPLEADO || c.getRol() == Rol.ADMINISTRADOR)
-                    .ifPresent(c -> {
-                        Empleado e = empleadoService.findById(c.getClienteId())
-                                .orElseGet(() -> {
-                                    Empleado nuevo = Empleado.builder()
-                                            .empleadoId(c.getClienteId())
-                                            .nombre(c.getNombre())
-                                            .apellido(c.getApellido())
-                                            .correo(c.getCorreo())
-                                            .contrasena(c.getContrasena())
-                                            .responsabilidad("Sincronizado desde Cliente")
-                                            .build();
-                                    try {
-                                        return empleadoService.save(nuevo);
-                                    } catch (Exception ex) {
-                                        return empleadoService.findById(c.getClienteId()).orElse(null);
-                                    }
-                                });
-                        if (e != null) {
-                            incidencia.setEmpleado(e);
-                        }
-                    });
+            empleadoService.findById(this.empleadoId).ifPresent(incidencia::setEmpleado);
         }
         incidencia.setTitulo(this.titulo);
         incidencia.setDescripcion(this.descripcion);
