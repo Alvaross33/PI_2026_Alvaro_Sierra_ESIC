@@ -1,159 +1,158 @@
-<!doctype html> 
-<html lang="es"> 
-<head> 
-  <meta charset="UTF-8" /> 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
-  <title>TFG - Gestión de Incidencias</title> 
-  <link rel="stylesheet" href="/style.css"> 
-</head> 
-<body> 
-  <div class="container"> 
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TFG - Gestión de Incidencias</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
     <div id="custom-alert-container" class="hidden"></div>
     <div class="logo-container">
       <img src="/Images/Logo TFG.png" alt="Logo TFG" class="logo">
     </div>
-    <h1>Gestión de Incidencias</h1> 
-    <div id="auth-view"> 
-      <h2>Acceso</h2> 
-      <form id="login-form" novalidate> 
-        <label>Email</label> 
-        <input type="email" id="login-email" required /> 
-        <label>Contraseña</label> 
-        <div style="position: relative; display: flex; align-items: center;">
-          <input type="password" id="login-pass" required style="width: 100%; box-sizing: border-box; padding-right: 40px;" /> 
-          <button type="button" class="toggle-password" style="position: absolute; right: 10px; background: none; border: none; cursor: pointer; padding: 0; color: #374151; display: flex; align-items: center; justify-content: center; height: 100%;">
+    <h1>Gestión de Incidencias</h1>
+
+    <div id="auth-view">
+      <h2>Acceso</h2>
+      <form id="login-form" novalidate>
+        <label>Email</label>
+        <input type="email" id="login-email" required />
+        <label>Contraseña</label>
+        <div class="password-wrapper">
+          <input type="password" id="login-pass" required />
+          <button type="button" class="toggle-password">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           </button>
         </div>
-        <button type="submit">Entrar</button> 
-        <button type="button" id="btn-to-register">Crear cuenta</button> 
-      </form> 
-      <div id="login-msg" class="msg"></div> 
-    </div> 
-    <div id="register-view" class="hidden"> 
-      <h2>Registro de nuevo cliente</h2> 
-      <form id="register-form" novalidate> 
-        <label>Nombre</label> 
-        <input type="text" id="reg-nombre" required /> <
-        <label>Apellido</label> 
-        <input type="text" id="reg-apellido" required /> 
-        <label>Email</label> 
-        <input type="email" id="reg-email" required /> 
-        <label>Contraseña</label> 
-        <div style="position: relative; display: flex; align-items: center;">
-          <input type="password" id="reg-pass" required style="width: 100%; box-sizing: border-box; padding-right: 40px;" /> 
-          <button type="button" class="toggle-password" style="position: absolute; right: 10px; background: none; border: none; cursor: pointer; padding: 0; color: #374151; display: flex; align-items: center; justify-content: center; height: 100%;">
+        <button type="submit">Entrar</button>
+        <button type="button" id="btn-to-register">Crear cuenta</button>
+      </form>
+      <div id="login-msg" class="msg"></div>
+    </div>
+
+    <div id="register-view" class="hidden">
+      <h2>Registro de nuevo cliente</h2>
+      <form id="register-form" novalidate>
+        <label>Nombre</label>
+        <input type="text" id="reg-nombre" required />
+        <label>Apellido</label>
+        <input type="text" id="reg-apellido" required />
+        <label>Email</label>
+        <input type="email" id="reg-email" required />
+        <label>Contraseña</label>
+        <div class="password-wrapper">
+          <input type="password" id="reg-pass" required />
+          <button type="button" class="toggle-password">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           </button>
         </div>
-        <button type="submit">Crear cuenta</button> 
-        <button type="button" id="reg-cancel">Cancelar</button> 
-      </form> 
-      <div id="reg-msg" class="msg"></div> 
-    </div> 
-      <div id="app-view" class="hidden"> 
-      <h2>Panel</h2> 
-      <div id="welcome"></div> 
-      <p id="role-info" style="font-weight: bold; color: #4b5563;"></p> 
-      <p>Acceso concedido. Aquí podrás gestionar tus incidencias.</p> 
-      <button id="logout">Cerrar sesión</button> 
-      <hr /> 
-      <div id="cliente-view" class="role-view hidden"> 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;"> 
-          <h3 style="margin: 0;">Tus Incidencias</h3> 
-          <button class="btn-nueva-incidencia">Crear Incidencia</button> 
-        </div> 
-        <div class="create-incidencia-view hidden" style="background-color: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;"> 
-          <h4>Nueva Incidencia</h4> 
-          <form class="incidencia-form" novalidate> 
-            <label>Título</label> 
-            <input type="text" class="inc-titulo" required /> 
-            <label>Descripción</label> 
-            <textarea class="inc-desc" rows="3" style="width: 100%; padding: 10px 12px; border: 1px solid #dbe0ea; border-radius: 8px; margin-top: 6px; font-family: inherit; resize: vertical;" required></textarea> 
-            <label>Prioridad</label> 
-            <select class="inc-prioridad"> 
-              <option value="BAJA">Baja</option> 
-              <option value="MEDIA" selected>Media</option> 
-              <option value="ALTA">Alta</option> 
-            </select> 
-            <button type="submit">Guardar</button> 
-            <button type="button" class="inc-cancel">Cancelar</button> 
-          </form> 
-          <div class="inc-msg msg"></div> 
-        </div> 
-        <ul id="incidencias-list" class="inc-list"></ul> 
-      </div> 
-      <div id="empleado-view" class="role-view hidden"> 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;"> 
-          <h3 style="margin: 0;">Panel de Empleado - Todas las Incidencias</h3> 
-        </div> 
-        <ul id="todas-incidencias-list" class="inc-list"></ul> 
-      </div> 
-      <div id="notes-template" class="hidden"> 
-        <div class="notes-container" style="margin-top: 20px; border-top: 2px solid var(--border); padding-top: 20px;"> 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;"> 
-            <h3 class="chat-title" style="margin: 0;">Historial de Notas</h3> 
-            <button class="btn-cerrar-notas" style="background: var(--text-muted);">Cerrar Notas</button> 
-          </div> 
-          <div class="chat-messages" style="max-height: 400px; overflow-y: auto; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 15px;"> 
-          </div> 
-          <div class="chat-form-container"> 
-            <form class="chat-form" style="display: flex; flex-direction: column; gap: 10px;"> 
-              <textarea class="chat-input" placeholder="Añadir una nota a la incidencia..." rows="3" style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; resize: vertical;" required></textarea> 
-              <button type="submit" style="align-self: flex-end;">Añadir Nota</button> 
-            </form> 
-            <div class="chat-status-msg hidden" style="color: var(--text-muted); text-align: center; padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px dashed var(--border);"> 
-              Esta incidencia aún no ha sido atendida por ningún técnico.
-            </div> 
-          </div> 
-        </div> 
-      </div> 
-      <div id="admin-view" class="role-view hidden"> 
-        <h3>Panel de Administración</h3> 
-        <div class="tabs"> 
-          <button class="tab-btn active" data-tab="tab-usuarios">Usuarios</button> 
-          <button class="tab-btn" data-tab="tab-todas-incidencias">Incidencias</button> 
-        </div> 
-        <div id="tab-usuarios" class="tab-content"> 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <h4 style="margin: 0;">Lista de Usuarios</h4>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <input type="text" id="search-usuarios" placeholder="Buscar por nombre..." style="padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; width: 250px;">
-              <button id="btn-nuevo-usuario" class="btn-primary">Crear Nuevo Usuario</button>
+        <button type="submit">Crear cuenta</button>
+        <button type="button" id="reg-cancel">Cancelar</button>
+      </form>
+      <div id="reg-msg" class="msg"></div>
+    </div>
+
+    <div id="app-view" class="hidden">
+      <h2>Panel</h2>
+      <div id="welcome"></div>
+      <p id="role-info" style="font-weight: bold; color: #4b5563;"></p>
+      <p>Acceso concedido. Aquí podrás gestionar tus incidencias.</p>
+      <button id="logout">Cerrar sesión</button>
+      <hr />
+
+      <div id="cliente-view" class="role-view hidden">
+        <div class="flex-between">
+          <h3 style="margin:0">Tus Incidencias</h3>
+          <button class="btn-nueva-incidencia">Crear Incidencia</button>
+        </div>
+        <div class="create-incidencia-view hidden" style="background:#f9fafb; padding:15px; border-radius:8px; margin-bottom:20px; border:1px solid #e5e7eb;">
+          <h4>Nueva Incidencia</h4>
+          <form class="incidencia-form" novalidate>
+            <label>Título</label>
+            <input type="text" class="inc-titulo" required />
+            <label>Descripción</label>
+            <textarea class="inc-desc" rows="3" style="width:100%; padding:10px 12px; border:1px solid #dbe0ea; border-radius:8px; margin-top:6px; font-family:inherit; resize:vertical;" required></textarea>
+            <label>Prioridad</label>
+            <select class="inc-prioridad">
+              <option value="BAJA">Baja</option>
+              <option value="MEDIA" selected>Media</option>
+              <option value="ALTA">Alta</option>
+            </select>
+            <button type="submit">Guardar</button>
+            <button type="button" class="inc-cancel">Cancelar</button>
+          </form>
+          <div class="inc-msg msg"></div>
+        </div>
+        <ul id="incidencias-list" class="inc-list"></ul>
+      </div>
+
+      <div id="empleado-view" class="role-view hidden">
+        <div class="flex-between">
+          <h3 style="margin:0">Panel de Empleado - Todas las Incidencias</h3>
+        </div>
+        <ul id="todas-incidencias-list" class="inc-list"></ul>
+      </div>
+
+      <div id="notes-template" class="hidden">
+        <div class="notes-container">
+          <div class="flex-between">
+            <h3 class="chat-title" style="margin:0">Historial de Notas</h3>
+            <button class="btn-cerrar-notas" style="background:var(--text-muted)">Cerrar Notas</button>
+          </div>
+          <div class="chat-messages"></div>
+          <div class="chat-form-container">
+            <form class="chat-form" style="display:flex; flex-direction:column; gap:10px;">
+              <textarea class="chat-input" placeholder="Añadir una nota a la incidencia..." rows="3" style="width:100%; padding:10px 12px; border:1px solid var(--border); border-radius:8px; font-family:inherit; resize:vertical;" required></textarea>
+              <button type="submit" style="align-self:flex-end">Añadir Nota</button>
+            </form>
+            <div class="chat-status-msg hidden">Esta incidencia aún no ha sido atendida por ningún técnico.</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="admin-view" class="role-view hidden">
+        <h3>Panel de Administración</h3>
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="tab-usuarios">Usuarios</button>
+          <button class="tab-btn" data-tab="tab-todas-incidencias">Incidencias</button>
+        </div>
+
+        <div id="tab-usuarios" class="tab-content">
+          <div class="flex-between">
+            <h4 style="margin:0">Lista de Usuarios</h4>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <input type="text" id="search-usuarios" placeholder="Buscar por nombre..." style="padding:8px; border:1px solid var(--border); border-radius:6px; font-size:0.9rem; width:250px;">
+              <button id="btn-nuevo-usuario">Crear Nuevo Usuario</button>
             </div>
           </div>
-          <div id="usuario-form-view" class="hidden" style="background-color: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
+          <div id="usuario-form-view" class="hidden" style="background:#f9fafb; padding:20px; border-radius:8px; margin-bottom:20px; border:1px solid #e5e7eb;">
             <h4 id="usuario-form-title">Nuevo Usuario</h4>
             <form id="usuario-form" novalidate>
               <input type="hidden" id="user-id" />
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div>
-                  <label>Nombre</label>
-                  <input type="text" id="user-nombre" required />
-                </div>
-                <div>
-                  <label>Apellido</label>
-                  <input type="text" id="user-apellido" required />
-                </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                <div><label>Nombre</label><input type="text" id="user-nombre" required /></div>
+                <div><label>Apellido</label><input type="text" id="user-apellido" required /></div>
               </div>
               <label>Email</label>
               <input type="email" id="user-email" required />
               <label id="label-user-pass">Contraseña</label>
-              <div style="position: relative; display: flex; align-items: center;">
-                <input type="password" id="user-pass" style="width: 100%; box-sizing: border-box; padding-right: 40px;" />
-                <button type="button" class="toggle-password" style="position: absolute; right: 10px; background: none; border: none; cursor: pointer; padding: 0; color: #374151; display: flex; align-items: center; justify-content: center; height: 100%;">
+              <div class="password-wrapper">
+                <input type="password" id="user-pass" />
+                <button type="button" class="toggle-password">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 </button>
               </div>
               <small id="pass-help" class="hidden">Dejar en blanco para no cambiar</small>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
                 <div>
                   <label>Rol</label>
-                  <select id="user-rol" disabled style="background-color: #f3f4f6; cursor: not-allowed;">
+                  <select id="user-rol" disabled style="background-color:#f3f4f6; cursor:not-allowed;">
                     <option value="CLIENTE">Cliente</option>
                     <option value="EMPLEADO">Empleado</option>
                   </select>
-                  <small style="color: var(--text-muted); font-size: 0.75rem;">Determinado por el dominio del email</small>
+                  <small style="color:var(--text-muted); font-size:0.75rem;">Determinado por el dominio del email</small>
                 </div>
                 <div>
                   <label>Estado</label>
@@ -163,50 +162,49 @@
                   </select>
                 </div>
               </div>
-              <div style="margin-top: 20px;">
+              <div style="margin-top:20px;">
                 <button type="submit">Guardar Usuario</button>
                 <button type="button" id="user-cancel" class="btn-secondary">Cancelar</button>
               </div>
             </form>
             <div id="user-msg" class="msg"></div>
           </div>
-          <table id="usuarios-table" style="width: 100%; border-collapse: collapse;"> 
-            <thead> 
-              <tr style="border-bottom: 2px solid #e5e7eb; text-align: left;"> 
-                <th style="padding: 10px;">Nombre</th> 
-                <th style="padding: 10px;">Email</th> 
-                <th style="padding: 10px;">Rol</th> 
-                <th style="padding: 10px;">Estado</th>
-                <th style="padding: 10px;">Acciones</th> 
-              </tr> 
-            </thead> 
-            <tbody id="usuarios-body"></tbody> 
-          </table> 
-        </div> 
-        <div id="tab-todas-incidencias" class="tab-content hidden"> 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;"> 
-            <h4 style="margin: 0;">Incidencias Activas</h4> 
-          </div> 
-          <ul id="admin-incidencias-list" class="inc-list"></ul> 
-          <div style="margin-top: 30px;"> 
-            <h4>Historial de Incidencias Cerradas</h4> 
-            <table class="usuarios-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;"> 
-              <thead> 
-                <tr style="border-bottom: 2px solid #e5e7eb; text-align: left;"> 
-                  <th style="padding: 10px;">Título</th> 
-                  <th style="padding: 10px;">Cliente</th> 
-                  <th style="padding: 10px;">Prioridad</th> 
-                  <th style="padding: 10px;">Fecha</th> 
-                  <th style="padding: 10px;">Acciones</th> 
-                </tr> 
-              </thead> 
-              <tbody id="admin-historial-incidencias-body"></tbody> 
-            </table> 
-          </div> 
-        </div> 
-      </div> 
-    </div> 
-  </div> 
-  <script src="/app.js"></script> 
-</body> 
-</html> 
+          <table id="usuarios-table" style="width:100%; border-collapse:collapse;">
+            <thead>
+              <tr style="border-bottom:2px solid #e5e7eb; text-align:left;">
+                <th style="padding:10px">Nombre</th>
+                <th style="padding:10px">Email</th>
+                <th style="padding:10px">Rol</th>
+                <th style="padding:10px">Estado</th>
+                <th style="padding:10px">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="usuarios-body"></tbody>
+          </table>
+        </div>
+
+        <div id="tab-todas-incidencias" class="tab-content hidden">
+          <div class="flex-between"><h4 style="margin:0">Incidencias Activas</h4></div>
+          <ul id="admin-incidencias-list" class="inc-list"></ul>
+          <div style="margin-top:30px;">
+            <h4>Historial de Incidencias Cerradas</h4>
+            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+              <thead>
+                <tr style="border-bottom:2px solid #e5e7eb; text-align:left;">
+                  <th style="padding:10px">Título</th>
+                  <th style="padding:10px">Cliente</th>
+                  <th style="padding:10px">Prioridad</th>
+                  <th style="padding:10px">Fecha</th>
+                  <th style="padding:10px">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="admin-historial-incidencias-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
